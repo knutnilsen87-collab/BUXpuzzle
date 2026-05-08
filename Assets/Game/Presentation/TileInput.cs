@@ -1,5 +1,6 @@
 using UnityEngine;
 using Game.Core;
+using Game.Presentation.Juice;
 using Game.Telemetry;
 
 namespace Game.Presentation
@@ -189,6 +190,7 @@ namespace Game.Presentation
             if (_selected != null) _selected.SetSelected(false);
             _selected = tile;
             _selected.SetSelected(true);
+            BoardJuiceController.Ensure().TileSelected();
             GameTelemetry.Track("game.tile_selected", GameTelemetry.Props(
                 "input_type", "tap",
                 "x", tile.X,
@@ -201,6 +203,7 @@ namespace Game.Presentation
         {
             if (_selected != null) _selected.SetSelected(false);
             _selected = null;
+            BoardJuiceController.Ensure().TileDeselected();
         }
 
         private static bool IsAdjacent(TileView a, TileView b)

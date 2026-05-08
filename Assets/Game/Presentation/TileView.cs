@@ -17,6 +17,7 @@ namespace Game.Presentation
         private int _hintLevel;
         private bool _resolveHighlight;
         private bool _clearing;
+        private bool _landing;
 
         void Awake()
         {
@@ -73,6 +74,12 @@ namespace Game.Presentation
             ApplyVisuals();
         }
 
+        public void SetLanding(bool active)
+        {
+            _landing = active;
+            ApplyVisuals();
+        }
+
         private void ApplyVisuals()
         {
             EnsureRenderers();
@@ -89,6 +96,7 @@ namespace Game.Presentation
                 Color color = Color.white;
                 if (_hintLevel > 0) color = Color.Lerp(color, new Color(1f, 0.95f, 0.48f, 1f), _hintLevel == 2 ? 0.45f : 0.25f);
                 if (_resolveHighlight) color = Color.Lerp(color, new Color(1f, 1f, 0.72f, 1f), 0.35f);
+                if (_landing) color = Color.Lerp(color, new Color(0.85f, 1f, 0.82f, 1f), 0.20f);
                 if (_clearing) color.a = 0.36f;
                 _baseRenderer.color = color;
             }
@@ -102,12 +110,15 @@ namespace Game.Presentation
             }
 
             float scale = 1f;
-            if (_selected) scale = 1.18f;
-            if (_hintLevel == 1) scale = Mathf.Max(scale, 1.10f);
-            if (_hintLevel == 2) scale = Mathf.Max(scale, 1.20f + Mathf.Sin(Time.unscaledTime * 5f) * 0.035f);
-            if (_resolveHighlight) scale = Mathf.Max(scale, 1.14f);
+            if (_selected) scale = 1.07f;
+            if (_hintLevel == 1) scale = Mathf.Max(scale, 1.08f);
+            if (_hintLevel == 2) scale = Mathf.Max(scale, 1.12f + Mathf.Sin(Time.unscaledTime * 5f) * 0.025f);
+            if (_resolveHighlight) scale = Mathf.Max(scale, 1.12f);
+            if (_landing) scale = 0.94f;
             if (_clearing) scale = 0.74f;
-            transform.localScale = _baseScale * scale;
+            var finalScale = _baseScale * scale;
+            if (_landing) finalScale = new Vector3(finalScale.x * 1.05f, finalScale.y * 0.92f, finalScale.z);
+            transform.localScale = finalScale;
         }
 
         private void HidePlaceholderMeshes()
