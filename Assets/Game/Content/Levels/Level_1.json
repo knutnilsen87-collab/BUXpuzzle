@@ -1,0 +1,16 @@
+{
+  "worldId": 1,
+  "width": 6,
+  "levelId": 1,
+  "moveLimit": 6,
+  "height": 6,
+  "allowLose": false,
+  "designerNote": "Level 1: 6x6, win-biased, first reward <5s",
+  "goals": [
+    {
+      "type": "Score",
+      "target": 500
+    }
+  ],
+  "forceWinBias": true
+}

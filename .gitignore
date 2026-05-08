@@ -1,0 +1,60 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Unity generated files
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+
+# Visual Studio / Rider / OS noise
+.vs/
+.idea/
+.vscode/
+*.DotSettings.user
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Crash and profiler output
+*.stackdump
+*.log
+*.trace
+*.mem
+
+# Local release/archive artifacts
+ReleaseCandidate/
+*.zip
+*.7z
+*.rar
+
+# Local recovery/autopilot artifacts kept outside version control
+Assets/_Recovery/
+Assets/_Recovery.meta
+AUTOPILOT_*.zip
+FBL_STATUS_BUNDLE.txt
+
+# Local backup/disabled variants from recovery passes
+*.bak
+*.bak.*
+*._bak
+*._bak*
+*.disabled.*
+*.DISABLED
+*.DISABLED.*

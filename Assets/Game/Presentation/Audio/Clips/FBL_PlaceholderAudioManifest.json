@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "status": "PLACEHOLDER_AUDIO_READY",
+  "intent": "Temporary placeholder audio pack for playable polished build",
+  "clips": [
+    {
+      "event": "swap",
+      "file": "swap_soft.wav"
+    },
+    {
+      "event": "invalid_swap",
+      "file": "swap_invalid.wav"
+    },
+    {
+      "event": "match",
+      "file": "match_pop.wav"
+    },
+    {
+      "event": "cascade",
+      "file": "cascade_roll.wav"
+    },
+    {
+      "event": "spawn",
+      "file": "spawn_soft.wav"
+    },
+    {
+      "event": "combo",
+      "file": "combo_bloom.wav"
+    },
+    {
+      "event": "settle",
+      "file": "board_settle.wav"
+    }
+  ],
+  "note": "These are temporary synthesized placeholders, not final authored audio."
+}

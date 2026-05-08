@@ -1,0 +1,16 @@
+{
+  "worldId": 1,
+  "width": 6,
+  "levelId": 4,
+  "moveLimit": 12,
+  "height": 6,
+  "allowLose": true,
+  "designerNote": "Level 4: light planning, still forgiving",
+  "goals": [
+    {
+      "type": "Score",
+      "target": 1200
+    }
+  ],
+  "forceWinBias": true
+}

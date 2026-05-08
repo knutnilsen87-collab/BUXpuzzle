@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "status": "SCENE_BINDING_MUTATION_PREPARED",
+  "target_scene": "Assets/Scenes/game.unity",
+  "scene_file_exists": true,
+  "operations": [
+    "Ensure Phase B bootstrap has HUD presenter reference field",
+    "Ensure Phase B bootstrap has audio router reference field",
+    "Expose validation method for runtime binding sanity check",
+    "Do not claim scene object references are already assigned"
+  ],
+  "hard_rule": "No false claim of live scene assignment without runtime/editor evidence"
+}

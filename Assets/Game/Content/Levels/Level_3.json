@@ -1,0 +1,16 @@
+{
+  "worldId": 1,
+  "width": 6,
+  "levelId": 3,
+  "moveLimit": 10,
+  "height": 6,
+  "allowLose": false,
+  "designerNote": "Level 3: few blockers, teach clearing",
+  "goals": [
+    {
+      "type": "ClearBlockers",
+      "target": 3
+    }
+  ],
+  "forceWinBias": true
+}

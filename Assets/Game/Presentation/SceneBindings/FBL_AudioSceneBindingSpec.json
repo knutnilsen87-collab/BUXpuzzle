@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "status": "SCENE_BINDING_SCAFFOLD_READY",
+  "target_scene": "Assets/Scenes/game.unity",
+  "binder": "FBL_AudioSceneBinder",
+  "required": [
+    "FBL_PresentationAudioRouter on presentation object",
+    "AudioSource bound",
+    "Audio event map assigned"
+  ],
+  "optional": [
+    "secondary mixer routing",
+    "combo ducking"
+  ],
+  "note": "This scaffold prepares scene binding without claiming live audio scene hookup is already complete."
+}

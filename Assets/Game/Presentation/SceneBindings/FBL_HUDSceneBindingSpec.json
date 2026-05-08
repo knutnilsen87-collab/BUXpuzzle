@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "status": "SCENE_BINDING_SCAFFOLD_READY",
+  "target_scene": "Assets/Scenes/game.unity",
+  "binder": "FBL_HUDSceneBinder",
+  "required": [
+    "FBL_HUDPresenter on HUD root object",
+    "movesText bound",
+    "scoreText bound",
+    "feedbackText bound"
+  ],
+  "optional": [
+    "comboText bound"
+  ],
+  "note": "This scaffold prepares deterministic scene wiring without claiming scene binding is already complete."
+}

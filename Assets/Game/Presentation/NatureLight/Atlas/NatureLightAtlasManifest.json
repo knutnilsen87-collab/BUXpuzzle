@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "atlas_name": "NatureLightTileAtlas",
+  "status": "SCAFFOLD_READY",
+  "source_folder": "F:\\prosjekter\\candycrush\\BUXPuzzle\\Assets\\Game\\Presentation\\NatureLight\\Sprites",
+  "groups": [
+    {
+      "name": "tile_bases",
+      "pattern": "tile_*_base.png"
+    },
+    {
+      "name": "tile_symbols",
+      "pattern": "tile_*_symbol.png"
+    },
+    {
+      "name": "tile_highlights",
+      "pattern": "tile_*_highlight.png"
+    },
+    {
+      "name": "shared_fx",
+      "pattern": "*.png"
+    }
+  ],
+  "intent": "Single source visual manifest for tile art atlas generation and later build automation"
+}

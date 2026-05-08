@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "status": "SCAFFOLD_READY",
+  "policy": {
+    "must_not_change_gameplay_truth": true,
+    "presentation_only": true
+  },
+  "events": [
+    {
+      "cooldown_ms": 40,
+      "event": "swap",
+      "clip": "swap_soft"
+    },
+    {
+      "cooldown_ms": 80,
+      "event": "invalid_swap",
+      "clip": "swap_invalid"
+    },
+    {
+      "cooldown_ms": 30,
+      "event": "match",
+      "clip": "match_pop"
+    },
+    {
+      "cooldown_ms": 50,
+      "event": "cascade",
+      "clip": "cascade_roll"
+    },
+    {
+      "cooldown_ms": 35,
+      "event": "spawn",
+      "clip": "spawn_soft"
+    },
+    {
+      "cooldown_ms": 120,
+      "event": "combo",
+      "clip": "combo_bloom"
+    },
+    {
+      "cooldown_ms": 50,
+      "event": "settle",
+      "clip": "board_settle"
+    }
+  ]
+}

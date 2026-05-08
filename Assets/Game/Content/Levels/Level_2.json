@@ -1,0 +1,16 @@
+{
+  "worldId": 1,
+  "width": 6,
+  "levelId": 2,
+  "moveLimit": 8,
+  "height": 6,
+  "allowLose": false,
+  "designerNote": "Level 2: introduce 4-match special safely",
+  "goals": [
+    {
+      "type": "CreateSpecials",
+      "target": 1
+    }
+  ],
+  "forceWinBias": true
+}

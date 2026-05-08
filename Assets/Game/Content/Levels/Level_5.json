@@ -1,0 +1,16 @@
+{
+  "worldId": 1,
+  "width": 6,
+  "levelId": 5,
+  "moveLimit": 14,
+  "height": 6,
+  "allowLose": true,
+  "designerNote": "Level 5: first mild lose possibility (still rewarded)",
+  "goals": [
+    {
+      "type": "ClearBlockers",
+      "target": 6
+    }
+  ],
+  "forceWinBias": false
+}

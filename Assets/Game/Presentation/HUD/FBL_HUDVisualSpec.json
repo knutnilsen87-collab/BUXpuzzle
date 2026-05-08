@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "status": "SCAFFOLD_READY",
+  "priority": [
+    "board",
+    "moves",
+    "score",
+    "feedback"
+  ],
+  "style": {
+    "spectacle_limit": "moderate",
+    "tone": "Nature Light",
+    "board_focus_priority": "highest",
+    "feedback_clarity": "high"
+  },
+  "widgets": [
+    {
+      "id": "moves",
+      "type": "counter",
+      "required": true
+    },
+    {
+      "id": "score",
+      "type": "counter",
+      "required": true
+    },
+    {
+      "id": "feedback",
+      "type": "status_text",
+      "required": true
+    },
+    {
+      "id": "combo",
+      "type": "status_text",
+      "required": false
+    }
+  ]
+}

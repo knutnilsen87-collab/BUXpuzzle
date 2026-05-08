@@ -1,0 +1,20 @@
+* text=auto
+
+*.cs text diff=csharp
+*.json text
+*.md text
+*.asmdef text
+*.asset text
+*.prefab text
+*.unity text
+*.meta text
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.aiff binary
+*.ttf binary
+*.otf binary

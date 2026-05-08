@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "status": "RUNTIME_SIGNOFF_REQUIRED",
+  "checks": [
+    {
+      "id": "tile_identification_under_1s",
+      "current": "PENDING_RUNTIME_CAPTURE",
+      "required": true,
+      "owner": "QA/UX"
+    },
+    {
+      "id": "cascade_depth_3_readability",
+      "current": "PENDING_RUNTIME_CAPTURE",
+      "required": true,
+      "owner": "QA/UX"
+    },
+    {
+      "id": "effects_explain_not_hide_state",
+      "current": "PENDING_RUNTIME_CAPTURE",
+      "required": true,
+      "owner": "QA/UX"
+    },
+    {
+      "id": "hud_secondary_to_board_focus",
+      "current": "PENDING_RUNTIME_CAPTURE",
+      "required": true,
+      "owner": "QA/UX"
+    },
+    {
+      "id": "audio_feedback_is_supportive",
+      "current": "PENDING_RUNTIME_CAPTURE",
+      "required": false,
+      "owner": "QA/UX"
+    }
+  ],
+  "policy": {
+    "runtime_capture_required": true,
+    "no_false_green_subjective_signoff": true,
+    "engine_truth_priority": true
+  }
+}

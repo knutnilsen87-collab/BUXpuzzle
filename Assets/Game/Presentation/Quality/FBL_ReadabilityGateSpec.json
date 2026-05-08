@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "status": "SCAFFOLD_READY",
+  "gates": [
+    {
+      "id": "tile_identification_under_1s",
+      "metric": "human_review_required",
+      "target": "PASS"
+    },
+    {
+      "id": "board_focus_preserved",
+      "metric": "ui_visual_balance",
+      "target": "PASS"
+    },
+    {
+      "id": "cascade_depth_3_readability",
+      "metric": "runtime_capture_review_required",
+      "target": "PASS"
+    },
+    {
+      "id": "effects_explain_not_hide_state",
+      "metric": "presentation_review_required",
+      "target": "PASS"
+    }
+  ],
+  "note": "This scaffold defines the gate. It does not claim subjective pass automatically."
+}

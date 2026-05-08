@@ -1,0 +1,56 @@
+{
+  "version": "1.0",
+  "theme": "Nature Light",
+  "status": "PLACEHOLDER_PIPELINE_READY",
+  "intent": "Final authored art pipeline for tile bases, symbols, highlights and UI-linked visuals",
+  "constraints": {
+    "presentation_only": true,
+    "engine_truth_source": "runtime",
+    "readability_priority": "board readability beats spectacle",
+    "target_identification_time_seconds": 1.0
+  },
+  "tiles": [
+    {
+      "base": "tile_leaf_base.png",
+      "highlight": "tile_leaf_highlight.png",
+      "kind": "Leaf",
+      "symbol": "tile_leaf_symbol.png"
+    },
+    {
+      "base": "tile_flower_base.png",
+      "highlight": "tile_flower_highlight.png",
+      "kind": "Flower",
+      "symbol": "tile_flower_symbol.png"
+    },
+    {
+      "base": "tile_berry_base.png",
+      "highlight": "tile_berry_highlight.png",
+      "kind": "Berry",
+      "symbol": "tile_berry_symbol.png"
+    },
+    {
+      "base": "tile_sun_base.png",
+      "highlight": "tile_sun_highlight.png",
+      "kind": "Sun",
+      "symbol": "tile_sun_symbol.png"
+    },
+    {
+      "base": "tile_water_base.png",
+      "highlight": "tile_water_highlight.png",
+      "kind": "Water",
+      "symbol": "tile_water_symbol.png"
+    },
+    {
+      "base": "tile_stone_base.png",
+      "highlight": "tile_stone_highlight.png",
+      "kind": "Stone",
+      "symbol": "tile_stone_symbol.png"
+    }
+  ],
+  "shared": {
+    "combo_glow": "combo_glow.png",
+    "match_flash": "match_flash.png",
+    "board_frame": "board_frame.png",
+    "tile_shadow": "tile_shadow.png"
+  }
+}
