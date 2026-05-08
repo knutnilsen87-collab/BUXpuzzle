@@ -14,12 +14,23 @@ namespace Game.Presentation
         private SpriteRenderer _symbolRenderer;
         private Vector3 _baseScale;
         private bool _selected;
+        private int _hintLevel;
+        private bool _resolveHighlight;
+        private bool _clearing;
 
         void Awake()
         {
             HidePlaceholderMeshes();
             EnsureRenderers();
             _baseScale = transform.localScale;
+        }
+
+        void Update()
+        {
+            if (_hintLevel == 2)
+            {
+                ApplyVisuals();
+            }
         }
 
         public void Init(int x, int y, int type)
@@ -44,6 +55,24 @@ namespace Game.Presentation
             ApplyVisuals();
         }
 
+        public void SetTutorialHint(bool active, bool strong)
+        {
+            _hintLevel = active ? (strong ? 2 : 1) : 0;
+            ApplyVisuals();
+        }
+
+        public void SetResolveHighlight(bool active)
+        {
+            _resolveHighlight = active;
+            ApplyVisuals();
+        }
+
+        public void SetClearing(bool active)
+        {
+            _clearing = active;
+            ApplyVisuals();
+        }
+
         private void ApplyVisuals()
         {
             EnsureRenderers();
@@ -57,16 +86,28 @@ namespace Game.Presentation
             if (_baseRenderer != null)
             {
                 _baseRenderer.sprite = NatureLightRuntimeArt.TileBase(Type, _selected);
-                _baseRenderer.color = Color.white;
+                Color color = Color.white;
+                if (_hintLevel > 0) color = Color.Lerp(color, new Color(1f, 0.95f, 0.48f, 1f), _hintLevel == 2 ? 0.45f : 0.25f);
+                if (_resolveHighlight) color = Color.Lerp(color, new Color(1f, 1f, 0.72f, 1f), 0.35f);
+                if (_clearing) color.a = 0.36f;
+                _baseRenderer.color = color;
             }
 
             if (_symbolRenderer != null)
             {
                 _symbolRenderer.sprite = NatureLightRuntimeArt.TileSymbol(Type);
-                _symbolRenderer.color = _selected ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.94f);
+                _symbolRenderer.color = _clearing
+                    ? new Color(1f, 1f, 1f, 0.22f)
+                    : (_selected ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.94f));
             }
 
-            transform.localScale = _selected ? (_baseScale * 1.18f) : _baseScale;
+            float scale = 1f;
+            if (_selected) scale = 1.18f;
+            if (_hintLevel == 1) scale = Mathf.Max(scale, 1.10f);
+            if (_hintLevel == 2) scale = Mathf.Max(scale, 1.20f + Mathf.Sin(Time.unscaledTime * 5f) * 0.035f);
+            if (_resolveHighlight) scale = Mathf.Max(scale, 1.14f);
+            if (_clearing) scale = 0.74f;
+            transform.localScale = _baseScale * scale;
         }
 
         private void HidePlaceholderMeshes()

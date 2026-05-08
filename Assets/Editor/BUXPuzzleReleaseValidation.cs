@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Game.Core;
 using Game.Levels;
+using Game.Onboarding;
 using Game.Presentation;
 using Game.Progression;
 using UnityEditor;
@@ -70,33 +71,47 @@ public static class BUXPuzzleReleaseValidation
         var board = new BoardEngine(8, 8, 12345);
         Require(board.Width == 8 && board.Height == 8, "BoardEngine creates an 8x8 board", "BoardEngine dimensions are wrong.");
         Require(board.HasAnyValidMove(), "BoardEngine stable start has a valid move", "BoardEngine generated a dead starting board.");
+        Require(ValidMoveFinder.TryFind(board, out var tutorialMove), "ValidMoveFinder returns a tutorial move", "ValidMoveFinder could not find a first move.");
+        Require(board.WouldSwapCreateMatch(tutorialMove.A.X, tutorialMove.A.Y, tutorialMove.B.X, tutorialMove.B.Y), "ValidMoveFinder move creates a match", "ValidMoveFinder returned a move that does not create a match.");
 
         bool accepted = false;
         BoardEngine.ResolveSummary acceptedSummary = BoardEngine.ResolveSummary.New();
+        ResolveTrace acceptedTrace = null;
         for (int y = 0; y < board.Height && !accepted; y++)
         {
             for (int x = 0; x < board.Width && !accepted; x++)
             {
                 if (x + 1 < board.Width)
                 {
-                    accepted = board.TrySwapAndResolve(x, y, x + 1, y, out acceptedSummary);
+                    accepted = board.TrySwapAndResolveWithTrace(x, y, x + 1, y, out acceptedTrace);
                 }
 
                 if (!accepted && y + 1 < board.Height)
                 {
-                    accepted = board.TrySwapAndResolve(x, y, x, y + 1, out acceptedSummary);
+                    accepted = board.TrySwapAndResolveWithTrace(x, y, x, y + 1, out acceptedTrace);
                 }
             }
         }
 
+        if (acceptedTrace != null) acceptedSummary = acceptedTrace.Summary;
         Require(accepted, "BoardEngine accepts at least one legal swap", "No legal swap could be executed from a stable board.");
         Require(acceptedSummary.clearedTiles >= 3, "Accepted swap clears at least three tiles", "Accepted swap did not clear enough tiles.");
+        Require(acceptedTrace != null && acceptedTrace.Steps.Count == acceptedSummary.iterations, "Accepted swap records resolve trace", "Resolve trace is missing or does not match iteration count.");
         Require(board.HasAnyValidMove(), "BoardEngine keeps a legal move after accepted resolve", "BoardEngine ended in a dead-board state after resolve.");
 
         var invalidBoard = new BoardEngine(8, 8, 54321);
+        string beforeInvalid = Snapshot(invalidBoard);
         BoardEngine.ResolveSummary invalidSummary;
         bool invalidAccepted = invalidBoard.TrySwapAndResolve(0, 0, 2, 0, out invalidSummary);
         Require(!invalidAccepted, "BoardEngine rejects non-adjacent swaps", "BoardEngine accepted a non-adjacent swap.");
+        Require(Snapshot(invalidBoard) == beforeInvalid, "Invalid swap does not mutate board", "Invalid swap changed board state.");
+
+        var adjacentInvalidBoard = new BoardEngine(8, 8, 98765);
+        Require(TryFindAdjacentInvalidMove(adjacentInvalidBoard, out var invalidMove), "Validation found an adjacent invalid swap", "Could not find an adjacent invalid swap to test.");
+        string beforeAdjacentInvalid = Snapshot(adjacentInvalidBoard);
+        bool adjacentInvalidAccepted = adjacentInvalidBoard.TrySwapAndResolve(invalidMove.A.X, invalidMove.A.Y, invalidMove.B.X, invalidMove.B.Y, out invalidSummary);
+        Require(!adjacentInvalidAccepted, "BoardEngine rejects adjacent swaps that make no match", "BoardEngine accepted an adjacent non-matching swap.");
+        Require(Snapshot(adjacentInvalidBoard) == beforeAdjacentInvalid, "Adjacent invalid swap does not mutate board", "Adjacent invalid swap changed board state.");
     }
 
     private static void ValidateProgressionSave()
@@ -203,6 +218,7 @@ public static class BUXPuzzleReleaseValidation
         Require(File.Exists("STORE_METADATA_DRAFT.md"), "Store metadata draft exists", "STORE_METADATA_DRAFT.md is missing.");
         Require(File.Exists("PRIVACY_POLICY_DRAFT.md"), "Privacy policy draft exists", "PRIVACY_POLICY_DRAFT.md is missing.");
         Require(File.Exists("QA_DEVICE_MATRIX.md"), "QA device matrix exists", "QA_DEVICE_MATRIX.md is missing.");
+        Require(File.Exists("docs/qa/UX_FIRST_SESSION_QA.md"), "First-session UX QA checklist exists", "First-session UX QA checklist is missing.");
 
         if (string.IsNullOrWhiteSpace(PlayerSettings.Android.keystoreName))
         {
@@ -301,6 +317,45 @@ public static class BUXPuzzleReleaseValidation
         int temp = board[x1, y1];
         board[x1, y1] = board[x2, y2];
         board[x2, y2] = temp;
+    }
+
+    private static string Snapshot(BoardEngine board)
+    {
+        var parts = new List<string>();
+        for (int y = 0; y < board.Height; y++)
+        {
+            for (int x = 0; x < board.Width; x++)
+            {
+                var tile = board.Get(x, y);
+                parts.Add(((int)tile.Type) + ":" + ((int)tile.State));
+            }
+        }
+
+        return string.Join(",", parts);
+    }
+
+    private static bool TryFindAdjacentInvalidMove(BoardEngine board, out BoardMove move)
+    {
+        move = default(BoardMove);
+        for (int y = 0; y < board.Height; y++)
+        {
+            for (int x = 0; x < board.Width; x++)
+            {
+                if (x + 1 < board.Width && !board.WouldSwapCreateMatch(x, y, x + 1, y))
+                {
+                    move = new BoardMove(new BoardCoord(x, y), new BoardCoord(x + 1, y));
+                    return true;
+                }
+
+                if (y + 1 < board.Height && !board.WouldSwapCreateMatch(x, y, x, y + 1))
+                {
+                    move = new BoardMove(new BoardCoord(x, y), new BoardCoord(x, y + 1));
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static void WriteReport()

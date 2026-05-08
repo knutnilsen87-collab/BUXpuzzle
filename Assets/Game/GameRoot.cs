@@ -3,6 +3,7 @@ using Game.Core;
 using Game.Presentation;
 using Game.Progression;
 using Game.Telemetry;
+using Game.Onboarding;
 
 public sealed class GameRoot : MonoBehaviour
 {
@@ -17,17 +18,26 @@ public sealed class GameRoot : MonoBehaviour
     private RewardPipeline _rewards;
     private SessionTelemetryGuard _guard;
     private PlayerSave _save;
+    private float _sessionStartedAt;
+    private bool _levelCompleteSent;
 
     void Awake() { 
         Debug.Log("[AUTOPILOT_TRACE] GameRoot Awake start");
 
         ITelemetry telemetry = new NullTelemetry();
+        GameTelemetry.SetClient(telemetry);
         _guard = new SessionTelemetryGuard(telemetry);
+        _sessionStartedAt = Time.unscaledTime;
 
         _board = new BoardEngine(Width, Height, Seed);
         _feedback = gameObject.AddComponent<FeedbackSystem>();
         _rewards = new RewardPipeline();
         _save = PlayerSave.Load();
+        GameTelemetry.Track("session.start", GameTelemetry.Props(
+            "level_id", _save != null ? _save.CurrentLevel : 1,
+            "board_width", Width,
+            "board_height", Height
+        ));
 
         Debug.Log("[GameRoot] Initialized");
 Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
@@ -50,8 +60,30 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         if (hud == null)
         {
             var go = new GameObject("SimpleHud");
-            go.AddComponent<Game.UI.SimpleHud>();
+            hud = go.AddComponent<Game.UI.SimpleHud>();
         }
+
+        if (hud != null)
+        {
+            hud.Configure(_save != null ? _save.CurrentLevel : 1, 10, 20);
+            hud.GoalCompleted += OnHudGoalCompleted;
+        }
+
+        var tutorial = FindFirstObjectByType<FirstMoveTutorialController>();
+        if (tutorial == null)
+        {
+            gameObject.AddComponent<FirstMoveTutorialController>();
+        }
+    }
+
+    private void OnHudGoalCompleted()
+    {
+        if (_levelCompleteSent) return;
+        _levelCompleteSent = true;
+        GameTelemetry.Track("level.complete", GameTelemetry.Props(
+            "level_id", _save != null ? _save.CurrentLevel : 1,
+            "seconds_since_session_start", Mathf.RoundToInt(Time.unscaledTime - _sessionStartedAt)
+        ));
     }
 
     public void EndLevel(bool win, int secondsPlayed, int movesUsed, int goalsRemaining, bool smartMove)
@@ -83,6 +115,10 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
 
     void OnApplicationQuit()
     {
+        GameTelemetry.Track("session.abandon", GameTelemetry.Props(
+            "level_id", _save != null ? _save.CurrentLevel : 1,
+            "seconds_since_session_start", Mathf.RoundToInt(Time.unscaledTime - _sessionStartedAt)
+        ));
         if (_guard != null) _guard.OnSessionEnd();
     }
 

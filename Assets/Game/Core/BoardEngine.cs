@@ -84,8 +84,11 @@ namespace Game.Core
             return false;
         }
 
-        private bool WouldSwapCreateMatch(int x1, int y1, int x2, int y2)
+        public bool WouldSwapCreateMatch(int x1, int y1, int x2, int y2)
         {
+            if (!IsInBounds(x1, y1) || !IsInBounds(x2, y2)) return false;
+            if (!IsAdjacent(x1, y1, x2, y2)) return false;
+
             Swap(x1, y1, x2, y2);
             bool ok = FindMatches().Count > 0;
             Swap(x1, y1, x2, y2);
@@ -99,20 +102,35 @@ namespace Game.Core
 
         public bool TrySwapAndResolve(int x1, int y1, int x2, int y2, out ResolveSummary summary, int maxIterations = 50)
         {
-            summary = ResolveSummary.New();
+            ResolveTrace trace;
+            bool ok = TrySwapAndResolveWithTrace(x1, y1, x2, y2, out trace, maxIterations);
+            summary = trace != null ? trace.Summary : ResolveSummary.New();
+            return ok;
+        }
 
-            if (!IsAdjacent(x1, y1, x2, y2))
+        public bool TrySwapAndResolveWithTrace(int x1, int y1, int x2, int y2, out ResolveTrace trace, int maxIterations = 50)
+        {
+            trace = new ResolveTrace
+            {
+                Swap = new BoardMove(new BoardCoord(x1, y1), new BoardCoord(x2, y2)),
+                Summary = ResolveSummary.New()
+            };
+
+            if (!IsInBounds(x1, y1) || !IsInBounds(x2, y2) || !IsAdjacent(x1, y1, x2, y2))
             {
                 return false;
             }
 
             Swap(x1, y1, x2, y2);
 
-            Resolve(out summary, maxIterations);
+            Resolve(out var summary, maxIterations, trace);
+            trace.Summary = summary;
 
             if (!summary.anyCleared)
             {
                 Swap(x1, y1, x2, y2);
+                trace.Summary = ResolveSummary.New();
+                trace.Steps.Clear();
                 return false;
             }
 
@@ -126,6 +144,11 @@ namespace Game.Core
 
         public void Resolve(out ResolveSummary summary, int maxIterations = 50)
         {
+            Resolve(out summary, maxIterations, null);
+        }
+
+        private void Resolve(out ResolveSummary summary, int maxIterations, ResolveTrace trace)
+        {
             summary = ResolveSummary.New();
             int guard = 0;
 
@@ -137,11 +160,27 @@ namespace Game.Core
                     break;
                 }
 
+                ResolveStep step = null;
+                if (trace != null)
+                {
+                    step = new ResolveStep { Iteration = summary.iterations + 1 };
+                    foreach (var match in matches)
+                    {
+                        step.Matched.Add(ToCoord(match));
+                        step.Cleared.Add(ToCoord(match));
+                    }
+                }
+
                 Clear(matches, ref summary.clearedTiles);
-                Drop();
-                Spawn();
+                Drop(step != null ? step.Drops : null);
+                Spawn(step != null ? step.Spawned : null);
 
                 summary.iterations++;
+                if (step != null)
+                {
+                    trace.Steps.Add(step);
+                }
+
                 guard++;
 
                 if (guard >= maxIterations)
@@ -229,7 +268,7 @@ namespace Game.Core
             Clear(indices, ref dummy);
         }
 
-        private void Drop()
+        private void Drop(List<DropMove> drops = null)
         {
             for (int x = 0; x < Width; x++)
             {
@@ -241,6 +280,16 @@ namespace Game.Core
                     if (t.State != TileState.Blocker)
                     {
                         Set(x, writeY, t);
+                        if (drops != null && writeY != y)
+                        {
+                            drops.Add(new DropMove
+                            {
+                                From = new BoardCoord(x, y),
+                                To = new BoardCoord(x, writeY),
+                                Type = (int)t.Type
+                            });
+                        }
+
                         writeY++;
                     }
                 }
@@ -252,15 +301,33 @@ namespace Game.Core
             }
         }
 
-        private void Spawn()
+        private void Spawn(List<SpawnedTile> spawned = null)
         {
             for (int i = 0; i < _tiles.Length; i++)
             {
                 if (_tiles[i].State == TileState.Blocker)
                 {
                     _tiles[i] = RandomTile();
+                    if (spawned != null)
+                    {
+                        spawned.Add(new SpawnedTile
+                        {
+                            Coord = ToCoord(i),
+                            Type = (int)_tiles[i].Type
+                        });
+                    }
                 }
             }
+        }
+
+        private bool IsInBounds(int x, int y)
+        {
+            return x >= 0 && x < Width && y >= 0 && y < Height;
+        }
+
+        private BoardCoord ToCoord(int index)
+        {
+            return new BoardCoord(index % Width, index / Width);
         }
     }
 }

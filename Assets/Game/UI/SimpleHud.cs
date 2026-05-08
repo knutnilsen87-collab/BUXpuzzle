@@ -1,4 +1,5 @@
 using UnityEngine;
+using Game.Telemetry;
 
 namespace Game.UI
 {
@@ -8,10 +9,13 @@ namespace Game.UI
     /// </summary>
     public sealed class SimpleHud : MonoBehaviour
     {
+        public event System.Action GoalCompleted;
+        public int levelId = 1;
         public int targetMatches = 10;
         public int movesLeft = 20;
 
         private int _matches = 0;
+        private bool _goalSent;
         private GUIStyle _titleStyle;
         private GUIStyle _statStyle;
         private GUIStyle _smallStyle;
@@ -24,30 +28,61 @@ namespace Game.UI
             EnsureStyles();
 
             float width = Mathf.Min(560f, Screen.width - 32f);
-            float height = 94f;
+            float height = 102f;
             var panel = new Rect((Screen.width - width) * 0.5f, 14f, width, height);
             GUI.DrawTexture(panel, _panelTexture, ScaleMode.StretchToFill);
 
             var titleRect = new Rect(panel.x + 22f, panel.y + 13f, panel.width - 44f, 26f);
-            GUI.Label(titleRect, "BUX Puzzle", _titleStyle);
+            GUI.Label(titleRect, $"Level {levelId}", _titleStyle);
 
-            var objectiveRect = new Rect(panel.x + 22f, panel.y + 43f, panel.width * 0.58f, 22f);
-            GUI.Label(objectiveRect, $"Match {_matches}/{targetMatches}", _smallStyle);
+            var objectiveRect = new Rect(panel.x + 22f, panel.y + 43f, panel.width * 0.64f, 22f);
+            GUI.Label(objectiveRect, $"Lag {targetMatches} matcher", _smallStyle);
+
+            var progressRect = new Rect(panel.x + 22f, panel.y + 62f, panel.width * 0.64f, 20f);
+            GUI.Label(progressRect, $"{_matches}/{targetMatches} fullført", _smallStyle);
 
             var movesRect = new Rect(panel.x + panel.width - 146f, panel.y + 36f, 120f, 34f);
             GUI.Label(movesRect, movesLeft.ToString(), _statStyle);
-            GUI.Label(new Rect(movesRect.x, movesRect.y + 34f, movesRect.width, 18f), "moves", _smallStyle);
+            GUI.Label(new Rect(movesRect.x, movesRect.y + 34f, movesRect.width, 18f), "trekk", _smallStyle);
 
             float p = Mathf.Clamp01(targetMatches <= 0 ? 0f : (float)_matches / targetMatches);
-            var track = new Rect(panel.x + 22f, panel.y + 72f, panel.width - 44f, 8f);
+            var track = new Rect(panel.x + 22f, panel.y + 86f, panel.width - 44f, 8f);
             GUI.DrawTexture(track, _trackTexture, ScaleMode.StretchToFill);
             GUI.DrawTexture(new Rect(track.x, track.y, track.width * p, track.height), _fillTexture, ScaleMode.StretchToFill);
         }
 
+        public void Configure(int level, int goalMatches, int startingMoves)
+        {
+            levelId = Mathf.Max(1, level);
+            targetMatches = Mathf.Max(1, goalMatches);
+            movesLeft = Mathf.Max(0, startingMoves);
+            _matches = 0;
+            _goalSent = false;
+        }
+
         public void OnMatch()
+        {
+            OnMatch(3, 1);
+        }
+
+        public void OnMatch(int clearedTiles, int cascadeIterations)
         {
             _matches++;
             movesLeft = Mathf.Max(0, movesLeft - 1);
+            GameTelemetry.Track("level.goal_progress", GameTelemetry.Props(
+                "level_id", levelId,
+                "matches", _matches,
+                "target_matches", targetMatches,
+                "moves_left", movesLeft,
+                "cleared_tile_count", clearedTiles,
+                "cascade_iteration_count", cascadeIterations
+            ));
+
+            if (!_goalSent && _matches >= targetMatches)
+            {
+                _goalSent = true;
+                GoalCompleted?.Invoke();
+            }
         }
 
         private void EnsureStyles()
