@@ -116,6 +116,11 @@ namespace Game.Core
                 return false;
             }
 
+            if (!HasAnyValidMove())
+            {
+                EnsureStableStart();
+            }
+
             return true;
         }
 

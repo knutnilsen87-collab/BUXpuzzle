@@ -16,6 +16,7 @@ public sealed class GameRoot : MonoBehaviour
     private FeedbackSystem _feedback;
     private RewardPipeline _rewards;
     private SessionTelemetryGuard _guard;
+    private PlayerSave _save;
 
     void Awake() { 
         Debug.Log("[AUTOPILOT_TRACE] GameRoot Awake start");
@@ -26,6 +27,7 @@ public sealed class GameRoot : MonoBehaviour
         _board = new BoardEngine(Width, Height, Seed);
         _feedback = gameObject.AddComponent<FeedbackSystem>();
         _rewards = new RewardPipeline();
+        _save = PlayerSave.Load();
 
         Debug.Log("[GameRoot] Initialized");
 Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
@@ -58,6 +60,17 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
 
         if (results != null && results.Rewards != null && results.Rewards.Count > 0)
         {
+            foreach (var reward in results.Rewards)
+            {
+                _save.ApplyReward(reward);
+            }
+
+            if (win)
+            {
+                _save.AdvanceLevel();
+            }
+
+            _save.Save();
             _guard.OnRewardGranted();
         }
 

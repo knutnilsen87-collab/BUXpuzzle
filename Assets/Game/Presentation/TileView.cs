@@ -10,6 +10,7 @@ namespace Game.Presentation
         public int Type { get; private set; }
 
         private Renderer _renderer;
+        private TextMesh _symbol;
         private Vector3 _baseScale;
         private bool _selected;
         private Color _baseColor;
@@ -17,6 +18,20 @@ namespace Game.Presentation
         void Awake()
         {
             _renderer = GetComponentInChildren<Renderer>();
+            _symbol = GetComponentInChildren<TextMesh>();
+            if (_symbol == null)
+            {
+                var symbolGo = new GameObject("TileSymbol");
+                symbolGo.transform.SetParent(transform, false);
+                symbolGo.transform.localPosition = new Vector3(0f, 0f, -0.56f);
+                symbolGo.transform.localRotation = Quaternion.identity;
+                _symbol = symbolGo.AddComponent<TextMesh>();
+                _symbol.anchor = TextAnchor.MiddleCenter;
+                _symbol.alignment = TextAlignment.Center;
+                _symbol.characterSize = 0.34f;
+                _symbol.fontSize = 48;
+                _symbol.color = new Color(0.08f, 0.12f, 0.16f, 1f);
+            }
             _baseScale = transform.localScale;
             _baseColor = (_renderer != null) ? _renderer.material.color : Color.white;
         }
@@ -49,17 +64,30 @@ namespace Game.Presentation
             {
                 Color c = Type switch
                 {
-                    0 => new Color(0.25f, 0.55f, 1.00f),
-                    1 => new Color(1.00f, 0.85f, 0.20f),
-                    2 => new Color(1.00f, 0.30f, 0.30f),
-                    3 => new Color(0.25f, 0.85f, 0.35f),
-                    4 => new Color(0.70f, 0.35f, 1.00f),
-                    _ => new Color(1.00f, 0.55f, 0.20f),
+                    0 => new Color(0.36f, 0.80f, 0.47f),
+                    1 => new Color(0.39f, 0.66f, 0.96f),
+                    2 => new Color(0.95f, 0.87f, 0.39f),
+                    3 => new Color(0.95f, 0.65f, 0.35f),
+                    4 => new Color(0.71f, 0.48f, 0.91f),
+                    _ => new Color(0.96f, 0.43f, 0.47f),
                 };
 
                 _baseColor = c;
                 var mat = _renderer.material;
                 mat.color = _selected ? (c * 1.25f) : c;
+            }
+
+            if (_symbol != null)
+            {
+                _symbol.text = Type switch
+                {
+                    0 => "L",
+                    1 => "D",
+                    2 => "S",
+                    3 => "F",
+                    4 => "C",
+                    _ => "B",
+                };
             }
 
             transform.localScale = _selected ? (_baseScale * 1.18f) : _baseScale;

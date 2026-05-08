@@ -1,4 +1,5 @@
 using UnityEngine;
+using BUXPuzzle.Presentation.Audio;
 
 namespace Game.Presentation
 {
@@ -78,6 +79,10 @@ namespace Game.Presentation
             if (ok)
             {
                 DrawOrRedrawFromEngine();
+                var audio = FBL_PresentationAudioRouter.Ensure();
+                audio.PlayEvent("swap");
+                audio.PlayEvent(summary.iterations > 1 ? "cascade" : "match");
+                audio.PlayEvent("settle");
 
                 var hud = FindFirstObjectByType<Game.UI.SimpleHud>();
                 if (hud != null)
@@ -100,6 +105,7 @@ namespace Game.Presentation
                 $"a={a.X},{a.Y} b={b.X},{b.Y} clearedTiles={summary.clearedTiles} iterations={summary.iterations}"
             );
 
+            FBL_PresentationAudioRouter.Ensure().PlayEvent("invalid_swap");
             StartCoroutine(InvalidSwapRoutine(a, b));
             return false;
         }

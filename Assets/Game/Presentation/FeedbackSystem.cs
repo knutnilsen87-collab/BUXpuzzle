@@ -1,4 +1,5 @@
 using UnityEngine;
+using BUXPuzzle.Presentation.Audio;
 
 namespace Game.Presentation
 {
@@ -30,13 +31,27 @@ namespace Game.Presentation
             // AUDIO (placeholder)
             if (SoundEnabled)
             {
-                // later: AudioSource.PlayOneShot(...)
+                FBL_PresentationAudioRouter.Ensure().PlayEvent(EventName(evt.Type));
             }
 
             // HAPTICS (mobile later)
             if (HapticsEnabled)
             {
                 // later: Handheld.Vibrate() or native haptics
+            }
+        }
+
+        private static string EventName(FeedbackEventType type)
+        {
+            switch (type)
+            {
+                case FeedbackEventType.Match: return "match";
+                case FeedbackEventType.Cascade: return "cascade";
+                case FeedbackEventType.Special: return "combo";
+                case FeedbackEventType.SmartMove: return "combo";
+                case FeedbackEventType.FailSoft: return "invalid_swap";
+                case FeedbackEventType.Reward: return "combo";
+                default: return "settle";
             }
         }
     }
