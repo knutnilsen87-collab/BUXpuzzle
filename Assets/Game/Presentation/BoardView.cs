@@ -16,6 +16,7 @@ namespace Game.Presentation
         private global::GameRoot _root;
         private Game.Core.BoardEngine _engine;
         private TileView[,] _views;
+        private SpriteRenderer _boardSurface;
 
         [Header("Debug")]
         public bool AutoDrawOnStart = true;
@@ -200,6 +201,8 @@ namespace Game.Presentation
                     _views[x, y].transform.localPosition = new Vector3(x * CellSize, y * CellSize, 0f);
                 }
             }
+
+            ApplyScenePresentation();
         }
 
         public void DrawOrRedraw()
@@ -236,6 +239,77 @@ namespace Game.Presentation
 
             var offset = new Vector3((Width - 1) * CellSize * 0.5f, (Height - 1) * CellSize * 0.5f, 0f);
             transform.position = -offset;
+            ApplyScenePresentation();
+        }
+
+        private void ApplyScenePresentation()
+        {
+            var cam = Camera.main;
+            if (cam != null)
+            {
+                cam.orthographic = true;
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = new Color(0.51f, 0.72f, 0.78f, 1f);
+                cam.orthographicSize = Mathf.Max(5.15f, Height * CellSize * 0.66f);
+                cam.transform.position = new Vector3(0f, 0.20f, -10f);
+                cam.transform.rotation = Quaternion.identity;
+            }
+
+            EnsureBackdrop();
+            EnsureBoardSurface();
+        }
+
+        private void EnsureBackdrop()
+        {
+            var backdrop = GameObject.Find("NatureLightBackdrop");
+            if (backdrop == null)
+            {
+                backdrop = new GameObject("NatureLightBackdrop");
+            }
+
+            backdrop.transform.position = new Vector3(0f, 0f, 2f);
+            backdrop.transform.localRotation = Quaternion.identity;
+
+            var renderer = backdrop.GetComponent<SpriteRenderer>();
+            if (renderer == null) renderer = backdrop.AddComponent<SpriteRenderer>();
+            renderer.sprite = NatureLightRuntimeArt.Backdrop();
+            renderer.sortingOrder = -100;
+            renderer.color = Color.white;
+
+            if (renderer.sprite != null)
+            {
+                var bounds = renderer.sprite.bounds.size;
+                renderer.transform.localScale = new Vector3(18f / bounds.x, 13f / bounds.y, 1f);
+            }
+        }
+
+        private void EnsureBoardSurface()
+        {
+            var child = transform.Find("BoardSurface");
+            if (child == null)
+            {
+                var go = new GameObject("BoardSurface");
+                child = go.transform;
+                child.SetParent(transform, false);
+            }
+
+            child.SetAsFirstSibling();
+            child.localRotation = Quaternion.identity;
+            child.localPosition = new Vector3((Width - 1) * CellSize * 0.5f, (Height - 1) * CellSize * 0.5f, 0.08f);
+
+            _boardSurface = child.GetComponent<SpriteRenderer>();
+            if (_boardSurface == null) _boardSurface = child.gameObject.AddComponent<SpriteRenderer>();
+            _boardSurface.sprite = NatureLightRuntimeArt.BoardPanel();
+            _boardSurface.sortingOrder = -20;
+            _boardSurface.color = Color.white;
+
+            if (_boardSurface.sprite != null)
+            {
+                var bounds = _boardSurface.sprite.bounds.size;
+                float width = Width * CellSize + 0.84f;
+                float height = Height * CellSize + 0.84f;
+                child.localScale = new Vector3(width / bounds.x, height / bounds.y, 1f);
+            }
         }
     }
 }

@@ -66,14 +66,15 @@ public static class BUXPuzzleRuntimeSmoke
         var board = UnityEngine.Object.FindFirstObjectByType<BoardView>();
         var input = UnityEngine.Object.FindFirstObjectByType<TileInput>();
         var tiles = UnityEngine.Object.FindObjectsByType<TileView>(FindObjectsSortMode.None);
-        var symbols = UnityEngine.Object.FindObjectsByType<TextMesh>(FindObjectsSortMode.None);
+        var textSymbols = UnityEngine.Object.FindObjectsByType<TextMesh>(FindObjectsSortMode.None);
 
         Require(root != null, "Runtime GameRoot exists", "Runtime GameRoot was not found.");
         Require(board != null, "Runtime BoardView exists", "Runtime BoardView was not found.");
         Require(input != null, "Runtime TileInput exists", "Runtime TileInput was not found.");
         Require(tiles.Length == 64, "Runtime draws 64 tiles", $"Expected 64 tiles, found {tiles.Length}.");
         Require(CountTileColliders(tiles) == 64, "Every runtime tile has a collider", "One or more runtime tiles are missing colliders.");
-        Require(symbols.Length >= 64, "Runtime tiles expose non-color symbols", $"Expected at least 64 tile symbols, found {symbols.Length}.");
+        Require(CountSpriteSymbols(tiles) == 64, "Runtime tiles expose non-color sprite symbols", "One or more runtime tiles are missing sprite symbols.");
+        Require(textSymbols.Length == 0, "Runtime does not use placeholder text symbols", $"Found {textSymbols.Length} TextMesh placeholder symbols.");
 
         if (Camera.main != null && tiles.Length > 0)
         {
@@ -122,6 +123,21 @@ public static class BUXPuzzleRuntimeSmoke
         {
             if (tile != null && tile.GetComponentInChildren<Collider>() != null) count++;
         }
+        return count;
+    }
+
+    private static int CountSpriteSymbols(TileView[] tiles)
+    {
+        int count = 0;
+        foreach (var tile in tiles)
+        {
+            if (tile == null) continue;
+            var child = tile.transform.Find("TileSymbol");
+            if (child == null) continue;
+            var renderer = child.GetComponent<SpriteRenderer>();
+            if (renderer != null && renderer.sprite != null) count++;
+        }
+
         return count;
     }
 
