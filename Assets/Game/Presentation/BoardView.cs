@@ -257,7 +257,7 @@ namespace Game.Presentation
                 return;
             }
 
-            if (_views == null || _views.GetLength(0) != Width || _views.GetLength(1) != Height)
+            if (_views == null || _views.GetLength(0) != Width || _views.GetLength(1) != Height || HasMissingTileViews())
             {
                 for (int i = transform.childCount - 1; i >= 0; i--)
                 {
@@ -305,6 +305,24 @@ namespace Game.Presentation
             ApplyTutorialHighlight();
             ApplyScenePresentation();
             SendBoardVisibleOnce();
+        }
+
+        private bool HasMissingTileViews()
+        {
+            if (_views == null) return true;
+
+            for (int y = 0; y < _views.GetLength(1); y++)
+            {
+                for (int x = 0; x < _views.GetLength(0); x++)
+                {
+                    if (_views[x, y] == null)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void DrawOrRedraw()
