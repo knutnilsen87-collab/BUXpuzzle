@@ -21,10 +21,17 @@ namespace Game.EditorTools
             importer.mipmapEnabled = false;
             importer.alphaIsTransparency = true;
             importer.spritePixelsPerUnit = 100f;
-            importer.spriteMeshType = SpriteMeshType.FullRect;
-            importer.maxTextureSize = 1024;
             importer.textureCompression = TextureImporterCompression.CompressedHQ;
             importer.filterMode = UnityEngine.FilterMode.Bilinear;
+
+            var textureSettings = new TextureImporterSettings();
+            importer.ReadTextureSettings(textureSettings);
+            textureSettings.spriteMeshType = UnityEngine.SpriteMeshType.FullRect;
+            importer.SetTextureSettings(textureSettings);
+
+            var platformSettings = importer.GetDefaultPlatformTextureSettings();
+            platformSettings.maxTextureSize = 1024;
+            importer.SetPlatformTextureSettings(platformSettings);
         }
     }
 }
