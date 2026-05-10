@@ -4,6 +4,30 @@ namespace Game.Progression
 {
     public sealed class RewardPipeline
     {
+        public ResultsData Compute(SessionResult session)
+        {
+            if (session == null)
+            {
+                return Compute(false, 0, 0, 1, false);
+            }
+
+            ResultsData results = Compute(
+                session.Win,
+                0,
+                session.MovesUsed,
+                session.GoalsRemaining,
+                session.BestCascade >= 2);
+
+            results.Score = session.Score;
+            results.Stars = session.Stars;
+            results.Medal = session.Medal;
+            results.MovesLeft = session.MovesLeft;
+            results.BestCascade = session.BestCascade;
+            results.ShareCode = session.ShareCode;
+            session.Rewards = results.Rewards.ToArray();
+            return results;
+        }
+
         // ALWAYS grants something, even on loss
         public ResultsData Compute(
             bool win,

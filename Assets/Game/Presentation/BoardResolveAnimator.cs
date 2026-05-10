@@ -1,11 +1,14 @@
 using System.Collections;
 using Game.Core;
+using Game.Presentation.Juice;
 using UnityEngine;
 
 namespace Game.Presentation
 {
     public sealed class BoardResolveAnimator : MonoBehaviour
     {
+        private TileJuiceAnimator _tileJuice;
+
         public IEnumerator Play(BoardView board, TileView a, TileView b, ResolveTrace trace)
         {
             if (board == null || trace == null)
@@ -13,18 +16,22 @@ namespace Game.Presentation
                 yield break;
             }
 
+            if (_tileJuice == null)
+            {
+                _tileJuice = GetComponent<TileJuiceAnimator>();
+                if (_tileJuice == null) _tileJuice = gameObject.AddComponent<TileJuiceAnimator>();
+            }
+
             yield return AnimateAcceptedSwap(board, a, b);
 
             foreach (var step in trace.Steps)
             {
-                board.SetTilesResolveHighlight(step.Matched, true);
-                yield return new WaitForSeconds(0.18f);
+                BoardJuiceController.Ensure().MatchFound(step);
+                BoardJuiceController.Ensure().Cascade(step.Iteration);
+                yield return _tileJuice.PulseMatched(board, step);
 
-                board.SetTilesClearing(step.Cleared, true);
-                yield return new WaitForSeconds(0.16f);
-
-                board.SetTilesClearing(step.Cleared, false);
-                board.SetTilesResolveHighlight(step.Matched, false);
+                BoardJuiceController.Ensure().Clear();
+                yield return _tileJuice.ClearMatched(board, step);
 
                 if (step.Drops.Count > 0)
                 {
@@ -65,6 +72,7 @@ namespace Game.Presentation
             a.transform.localPosition = b0;
             b.transform.localPosition = a0;
             board.SwapVisualSlots(a, b);
+            BoardJuiceController.Ensure().SwapAccepted();
         }
 
         private IEnumerator AnimateDrops(BoardView board, ResolveStep step)
@@ -102,6 +110,8 @@ namespace Game.Presentation
             }
 
             board.ApplyDropVisualSlots(step.Drops);
+            BoardJuiceController.Ensure().DropLand();
+            yield return _tileJuice.Land(tiles);
             yield return new WaitForSeconds(0.08f);
         }
     }

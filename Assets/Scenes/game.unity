@@ -439,6 +439,7 @@ MonoBehaviour:
   RaycastMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  DragThresholdPixels: 42
 --- !u!4 &1552810163
 Transform:
   m_ObjectHideFlags: 0

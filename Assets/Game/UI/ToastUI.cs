@@ -45,7 +45,8 @@ namespace Game.UI
 
             var w = Mathf.Min(420, Screen.width - 32);
             var h = 48;
-            var r = new Rect(Screen.width/2 - w/2, 128, w, h);
+            var y = SimpleHud.ReservedTopPixels + 8f;
+            var r = new Rect(Screen.width/2 - w/2, y, w, h);
             GUI.Box(r, GUIContent.none);
             var style = new GUIStyle(GUI.skin.label)
             {

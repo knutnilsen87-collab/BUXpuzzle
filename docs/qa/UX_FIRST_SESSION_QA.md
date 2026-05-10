@@ -66,3 +66,20 @@ Required before store RC:
 - Android small/mid-screen touch pass
 - battery/performance sanity pass
 - no blocking runtime crashes during one full first session
+
+## Visual Satisfaction Addendum Gate
+
+Run after the first-session checks above:
+
+1. HUD is in the top safe-area row and does not overlap any tile.
+2. Top board row is fully visible with 12-24 px breathing room below the HUD.
+3. Board remains centered in the remaining viewport in portrait and editor free aspect.
+4. Tile select gives a small scale/glow response and soft select audio.
+5. Valid swap slides before match highlight/clear/drop/spawn/cascade.
+6. Invalid swap uses mild motion, soft audio, and helpful copy.
+7. Match, clear, drop, landing, and cascade moments are readable without becoming noisy.
+8. Progress bar animates with a small glow sweep and soft progress audio.
+9. Mission completion waits until the final resolve finishes, then shows `Mission accomplished`.
+10. `Neste level` advances to a fresh board with updated goal/moves.
+11. `Spill igjen` restarts the current level without leaking old progress.
+12. SFX can be disabled via `GameSettings.SfxEnabled`; haptics can be disabled via `GameSettings.HapticsEnabled`.

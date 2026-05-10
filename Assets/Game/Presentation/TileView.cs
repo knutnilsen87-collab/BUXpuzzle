@@ -1,4 +1,5 @@
 using UnityEngine;
+using Game.Core;
 
 namespace Game.Presentation
 {
@@ -8,6 +9,7 @@ namespace Game.Presentation
         public int X { get; private set; }
         public int Y { get; private set; }
         public int Type { get; private set; }
+        public TileState State { get; private set; }
 
         private SpriteRenderer _shadowRenderer;
         private SpriteRenderer _baseRenderer;
@@ -17,6 +19,7 @@ namespace Game.Presentation
         private int _hintLevel;
         private bool _resolveHighlight;
         private bool _clearing;
+        private bool _landing;
 
         void Awake()
         {
@@ -36,6 +39,7 @@ namespace Game.Presentation
         public void Init(int x, int y, int type)
         {
             X = x; Y = y; SetType(type);
+            State = TileState.Normal;
         }
 
         public void SetCoords(int x, int y)
@@ -46,6 +50,12 @@ namespace Game.Presentation
         public void SetType(int type)
         {
             Type = Mathf.Clamp(type, 0, 5);
+            ApplyVisuals();
+        }
+
+        public void SetState(TileState state)
+        {
+            State = state;
             ApplyVisuals();
         }
 
@@ -73,6 +83,12 @@ namespace Game.Presentation
             ApplyVisuals();
         }
 
+        public void SetLanding(bool active)
+        {
+            _landing = active;
+            ApplyVisuals();
+        }
+
         private void ApplyVisuals()
         {
             EnsureRenderers();
@@ -89,6 +105,12 @@ namespace Game.Presentation
                 Color color = Color.white;
                 if (_hintLevel > 0) color = Color.Lerp(color, new Color(1f, 0.95f, 0.48f, 1f), _hintLevel == 2 ? 0.45f : 0.25f);
                 if (_resolveHighlight) color = Color.Lerp(color, new Color(1f, 1f, 0.72f, 1f), 0.35f);
+                if (_landing) color = Color.Lerp(color, new Color(0.85f, 1f, 0.82f, 1f), 0.20f);
+                if (State == TileState.Line) color = Color.Lerp(color, new Color(1f, 0.88f, 0.34f, 1f), 0.34f);
+                if (State == TileState.Burst) color = Color.Lerp(color, new Color(1f, 0.58f, 0.78f, 1f), 0.34f);
+                if (State == TileState.ColorBomb) color = Color.Lerp(color, new Color(0.86f, 0.78f, 1f, 1f), 0.42f);
+                if (State == TileState.Frozen) color = Color.Lerp(color, new Color(0.55f, 0.84f, 0.62f, 1f), 0.46f);
+                if (State == TileState.Locked) color = Color.Lerp(color, new Color(0.48f, 0.70f, 0.42f, 1f), 0.52f);
                 if (_clearing) color.a = 0.36f;
                 _baseRenderer.color = color;
             }
@@ -96,18 +118,25 @@ namespace Game.Presentation
             if (_symbolRenderer != null)
             {
                 _symbolRenderer.sprite = NatureLightRuntimeArt.TileSymbol(Type);
-                _symbolRenderer.color = _clearing
-                    ? new Color(1f, 1f, 1f, 0.22f)
-                    : (_selected ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.94f));
+                Color symbol = _selected ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.94f);
+                if (State == TileState.Line) symbol = new Color(1f, 0.98f, 0.72f, 1f);
+                if (State == TileState.Burst) symbol = new Color(1f, 0.86f, 0.94f, 1f);
+                if (State == TileState.ColorBomb) symbol = new Color(0.92f, 0.86f, 1f, 1f);
+                if (State == TileState.Frozen) symbol = new Color(0.78f, 1f, 0.82f, 1f);
+                if (State == TileState.Locked) symbol = new Color(0.68f, 0.92f, 0.62f, 1f);
+                _symbolRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : symbol;
             }
 
             float scale = 1f;
-            if (_selected) scale = 1.18f;
-            if (_hintLevel == 1) scale = Mathf.Max(scale, 1.10f);
-            if (_hintLevel == 2) scale = Mathf.Max(scale, 1.20f + Mathf.Sin(Time.unscaledTime * 5f) * 0.035f);
-            if (_resolveHighlight) scale = Mathf.Max(scale, 1.14f);
+            if (_selected) scale = 1.07f;
+            if (_hintLevel == 1) scale = Mathf.Max(scale, 1.08f);
+            if (_hintLevel == 2) scale = Mathf.Max(scale, 1.12f + Mathf.Sin(Time.unscaledTime * 5f) * 0.025f);
+            if (_resolveHighlight) scale = Mathf.Max(scale, 1.12f);
+            if (_landing) scale = 0.94f;
             if (_clearing) scale = 0.74f;
-            transform.localScale = _baseScale * scale;
+            var finalScale = _baseScale * scale;
+            if (_landing) finalScale = new Vector3(finalScale.x * 1.05f, finalScale.y * 0.92f, finalScale.z);
+            transform.localScale = finalScale;
         }
 
         private void HidePlaceholderMeshes()

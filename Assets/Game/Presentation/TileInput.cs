@@ -1,5 +1,6 @@
 using UnityEngine;
 using Game.Core;
+using Game.Presentation.Juice;
 using Game.Telemetry;
 
 namespace Game.Presentation
@@ -12,6 +13,7 @@ namespace Game.Presentation
 
         private TileView _selected;
         private BoardView _boardView;
+        private global::GameRoot _root;
         private TileView _pointerStartTile;
         private Vector2 _pointerStartScreen;
         private bool _pointerDown;
@@ -22,10 +24,18 @@ namespace Game.Presentation
         {
             Debug.Log("[TileInput] Awake");
             _boardView = FindFirstObjectByType<BoardView>();
+            _root = FindFirstObjectByType<global::GameRoot>();
         }
 
         void Update()
         {
+            if (_root == null)
+            {
+                _root = FindFirstObjectByType<global::GameRoot>();
+            }
+
+            if (_root != null && _root.IsLevelEnded) return;
+
             if (_boardView == null)
             {
                 _boardView = FindFirstObjectByType<BoardView>();
@@ -189,6 +199,7 @@ namespace Game.Presentation
             if (_selected != null) _selected.SetSelected(false);
             _selected = tile;
             _selected.SetSelected(true);
+            BoardJuiceController.Ensure().TileSelected();
             GameTelemetry.Track("game.tile_selected", GameTelemetry.Props(
                 "input_type", "tap",
                 "x", tile.X,
@@ -201,6 +212,7 @@ namespace Game.Presentation
         {
             if (_selected != null) _selected.SetSelected(false);
             _selected = null;
+            BoardJuiceController.Ensure().TileDeselected();
         }
 
         private static bool IsAdjacent(TileView a, TileView b)

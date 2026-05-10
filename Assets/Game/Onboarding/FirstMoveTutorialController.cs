@@ -1,4 +1,5 @@
 using Game.Core;
+using Game.Audio;
 using Game.Presentation;
 using Game.Telemetry;
 using Game.UI;
@@ -54,6 +55,7 @@ namespace Game.Onboarding
                 _strongHintShown = true;
                 _boardView.SetTutorialMove(_move, true);
                 ToastUI.Show(UXCopy.TutorialFirstMove, 2.3f);
+                GameAudioController.Ensure().Play(AudioEvent.TutorialHint);
                 GameTelemetry.Track("tutorial.hint_shown", GameTelemetry.Props(
                     "level_id", LevelId(),
                     "from", _move.A.ToString(),
@@ -114,6 +116,7 @@ namespace Game.Onboarding
             _startedAt = Time.unscaledTime;
             _boardView.SetTutorialMove(_move, false);
             ToastUI.Show(UXCopy.TutorialFirstMove, 2.5f);
+            GameAudioController.Ensure().Play(AudioEvent.TutorialHint, 0.65f);
             GameTelemetry.Track("tutorial.start", GameTelemetry.Props(
                 "level_id", LevelId(),
                 "from", _move.A.ToString(),

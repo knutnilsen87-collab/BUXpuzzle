@@ -48,6 +48,24 @@ namespace Game.Core
             Set(x2, y2, a);
         }
 
+        public void SeedBlockers(TileState state, int count)
+        {
+            if (state != TileState.Frozen && state != TileState.Locked) return;
+            int placed = 0;
+            int attempts = 0;
+            while (placed < count && attempts < Width * Height * 4)
+            {
+                attempts++;
+                int x = _rng.Next(0, Width);
+                int y = _rng.Next(0, Height);
+                var tile = Get(x, y);
+                if (tile.State != TileState.Normal) continue;
+                tile.State = state;
+                Set(x, y, tile);
+                placed++;
+            }
+        }
+
         public bool Resolve()
         {
             ResolveSummary s;
@@ -121,6 +139,14 @@ namespace Game.Core
                 return false;
             }
 
+            var beforeA = Get(x1, y1);
+            var beforeB = Get(x2, y2);
+            if (IsSpecial(beforeA.State) || IsSpecial(beforeB.State))
+            {
+                ActivateSpecialSwap(x1, y1, x2, y2, beforeA, beforeB, trace, maxIterations);
+                return trace.Summary.anyCleared;
+            }
+
             Swap(x1, y1, x2, y2);
 
             Resolve(out var summary, maxIterations, trace);
@@ -133,6 +159,8 @@ namespace Game.Core
                 trace.Steps.Clear();
                 return false;
             }
+
+            CreateSpecialFromLargeMatch(x1, y1, summary.clearedTiles);
 
             if (!HasAnyValidMove())
             {
@@ -159,6 +187,8 @@ namespace Game.Core
                 {
                     break;
                 }
+
+                AddAdjacentBlockers(matches);
 
                 ResolveStep step = null;
                 if (trace != null)
@@ -218,9 +248,10 @@ namespace Game.Core
                 {
                     int i = y * Width + x;
                     var t = _tiles[i];
-                    if (t.State != TileState.Normal) continue;
+                    if (!IsMatchable(t.State)) continue;
 
-                    if (_tiles[i + 1].Type == t.Type && _tiles[i + 2].Type == t.Type)
+                    if (IsMatchable(_tiles[i + 1].State) && IsMatchable(_tiles[i + 2].State) &&
+                        _tiles[i + 1].Type == t.Type && _tiles[i + 2].Type == t.Type)
                     {
                         result.Add(i);
                         result.Add(i + 1);
@@ -235,9 +266,10 @@ namespace Game.Core
                 {
                     int i = y * Width + x;
                     var t = _tiles[i];
-                    if (t.State != TileState.Normal) continue;
+                    if (!IsMatchable(t.State)) continue;
 
-                    if (_tiles[i + Width].Type == t.Type && _tiles[i + Width * 2].Type == t.Type)
+                    if (IsMatchable(_tiles[i + Width].State) && IsMatchable(_tiles[i + Width * 2].State) &&
+                        _tiles[i + Width].Type == t.Type && _tiles[i + Width * 2].Type == t.Type)
                     {
                         result.Add(i);
                         result.Add(i + Width);
@@ -253,7 +285,7 @@ namespace Game.Core
         {
             foreach (var i in indices)
             {
-                if (_tiles[i].State == TileState.Normal)
+                if (IsMatchable(_tiles[i].State) || IsBlocker(_tiles[i].State))
                 {
                     clearedTiles++;
                 }
@@ -323,6 +355,141 @@ namespace Game.Core
         private bool IsInBounds(int x, int y)
         {
             return x >= 0 && x < Width && y >= 0 && y < Height;
+        }
+
+        private static bool IsMatchable(TileState state)
+        {
+            return state == TileState.Normal || state == TileState.Line || state == TileState.Burst || state == TileState.ColorBomb;
+        }
+
+        private static bool IsSpecial(TileState state)
+        {
+            return state == TileState.Line || state == TileState.Burst || state == TileState.ColorBomb;
+        }
+
+        private static bool IsBlocker(TileState state)
+        {
+            return state == TileState.Frozen || state == TileState.Locked;
+        }
+
+        private void AddAdjacentBlockers(List<int> matches)
+        {
+            if (matches == null || matches.Count == 0) return;
+            var add = new HashSet<int>();
+            foreach (int index in matches)
+            {
+                int x = index % Width;
+                int y = index / Width;
+                AddBlockerAt(x + 1, y, add);
+                AddBlockerAt(x - 1, y, add);
+                AddBlockerAt(x, y + 1, add);
+                AddBlockerAt(x, y - 1, add);
+            }
+
+            foreach (int index in add)
+            {
+                if (!matches.Contains(index))
+                {
+                    matches.Add(index);
+                }
+            }
+        }
+
+        private void AddBlockerAt(int x, int y, HashSet<int> add)
+        {
+            if (!IsInBounds(x, y)) return;
+            int index = y * Width + x;
+            if (IsBlocker(_tiles[index].State))
+            {
+                add.Add(index);
+            }
+        }
+
+        private void CreateSpecialFromLargeMatch(int x, int y, int clearedTiles)
+        {
+            if (!IsInBounds(x, y) || clearedTiles < 4) return;
+
+            var tile = Get(x, y);
+            if (!IsMatchable(tile.State)) return;
+
+            if (clearedTiles >= 7) tile.State = TileState.ColorBomb;
+            else if (clearedTiles >= 5) tile.State = TileState.Burst;
+            else tile.State = TileState.Line;
+
+            Set(x, y, tile);
+        }
+
+        private void ActivateSpecialSwap(int x1, int y1, int x2, int y2, Tile a, Tile b, ResolveTrace trace, int maxIterations)
+        {
+            var clear = new HashSet<int>();
+            AddSpecialClear(x1, y1, a, b.Type, clear);
+            AddSpecialClear(x2, y2, b, a.Type, clear);
+
+            if (clear.Count == 0)
+            {
+                return;
+            }
+
+            var step = new ResolveStep { Iteration = 1 };
+            foreach (int index in clear)
+            {
+                step.Matched.Add(ToCoord(index));
+                step.Cleared.Add(ToCoord(index));
+            }
+
+            int clearedTiles = 0;
+            Clear(new List<int>(clear), ref clearedTiles);
+            Drop(step.Drops);
+            Spawn(step.Spawned);
+            trace.Steps.Add(step);
+            trace.Summary = new ResolveSummary { iterations = 1, clearedTiles = clearedTiles };
+
+            Resolve(out var cascadeSummary, maxIterations, trace);
+            trace.Summary = new ResolveSummary
+            {
+                iterations = trace.Steps.Count,
+                clearedTiles = clearedTiles + cascadeSummary.clearedTiles
+            };
+
+            if (!HasAnyValidMove())
+            {
+                EnsureStableStart();
+            }
+        }
+
+        private void AddSpecialClear(int x, int y, Tile tile, TileType targetType, HashSet<int> clear)
+        {
+            if (!IsInBounds(x, y) || !IsSpecial(tile.State)) return;
+
+            if (tile.State == TileState.Line)
+            {
+                for (int cx = 0; cx < Width; cx++) clear.Add(y * Width + cx);
+                for (int cy = 0; cy < Height; cy++) clear.Add(cy * Width + x);
+                return;
+            }
+
+            if (tile.State == TileState.Burst)
+            {
+                for (int cy = y - 1; cy <= y + 1; cy++)
+                {
+                    for (int cx = x - 1; cx <= x + 1; cx++)
+                    {
+                        if (IsInBounds(cx, cy)) clear.Add(cy * Width + cx);
+                    }
+                }
+                return;
+            }
+
+            if (tile.State == TileState.ColorBomb)
+            {
+                for (int i = 0; i < _tiles.Length; i++)
+                {
+                    if (IsMatchable(_tiles[i].State) && _tiles[i].Type == targetType)
+                    {
+                        clear.Add(i);
+                    }
+                }
+            }
         }
 
         private BoardCoord ToCoord(int index)

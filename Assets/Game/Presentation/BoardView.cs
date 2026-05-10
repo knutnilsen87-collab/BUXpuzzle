@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Game.Audio;
 using Game.Core;
+using Game.Presentation.Juice;
+using Game.Presentation.Layout;
 using Game.Telemetry;
 using Game.UI;
 using UnityEngine;
-using BUXPuzzle.Presentation.Audio;
 using ResolveSummary = Game.Core.BoardEngine.ResolveSummary;
 
 namespace Game.Presentation
@@ -59,6 +61,11 @@ namespace Game.Presentation
         {
             _root = root;
             _engine = root != null ? root.Board : null;
+        }
+
+        public void ResetBoardVisibleTelemetry()
+        {
+            _boardVisibleSent = false;
         }
 
         public bool RequestSwap(TileView a, TileView b)
@@ -119,10 +126,6 @@ namespace Game.Presentation
 
             if (ok)
             {
-                var audio = FBL_PresentationAudioRouter.Ensure();
-                audio.PlayEvent("swap");
-                audio.PlayEvent(summary.iterations > 1 ? "cascade" : "match");
-
                 var hud = FindFirstObjectByType<Game.UI.SimpleHud>();
                 if (hud != null)
                 {
@@ -188,7 +191,7 @@ namespace Game.Presentation
                 $"a={a.X},{a.Y} b={b.X},{b.Y} clearedTiles={summary.clearedTiles} iterations={summary.iterations}"
             );
 
-            FBL_PresentationAudioRouter.Ensure().PlayEvent("invalid_swap");
+            BoardJuiceController.Ensure().SwapRejected();
             SwapRejected?.Invoke(move, inputType);
             StartCoroutine(InvalidSwapRoutine(a, b));
             return false;
@@ -204,7 +207,7 @@ namespace Game.Presentation
 
             yield return _resolveAnimator.Play(this, a, b, trace);
             DrawOrRedrawFromEngine();
-            FBL_PresentationAudioRouter.Ensure().PlayEvent("settle");
+            GameAudioController.Ensure().Play(AudioEvent.DropLand, 0.55f);
             _isResolving = false;
             SwapAccepted?.Invoke(move, summary, trace, inputType);
         }
@@ -281,6 +284,7 @@ namespace Game.Presentation
 
                         var tile = _engine.Get(x, y);
                         view.Init(x, y, (int)tile.Type);
+                        view.SetState(tile.State);
                         _views[x, y] = view;
                     }
                 }
@@ -298,6 +302,7 @@ namespace Game.Presentation
 
                     _views[x, y].SetCoords(x, y);
                     _views[x, y].SetType(type);
+                    _views[x, y].SetState(tile.State);
                     _views[x, y].transform.localPosition = new Vector3(x * CellSize, y * CellSize, 0f);
                 }
             }
@@ -522,15 +527,7 @@ namespace Game.Presentation
         private void ApplyScenePresentation()
         {
             var cam = Camera.main;
-            if (cam != null)
-            {
-                cam.orthographic = true;
-                cam.clearFlags = CameraClearFlags.SolidColor;
-                cam.backgroundColor = new Color(0.51f, 0.72f, 0.78f, 1f);
-                cam.orthographicSize = Mathf.Max(5.15f, Height * CellSize * 0.66f);
-                cam.transform.position = new Vector3(0f, 0.20f, -10f);
-                cam.transform.rotation = Quaternion.identity;
-            }
+            BoardLayoutController.Apply(cam, transform, Width, Height, CellSize);
 
             EnsureBackdrop();
             EnsureBoardSurface();
@@ -556,12 +553,32 @@ namespace Game.Presentation
             if (renderer.sprite != null)
             {
                 var bounds = renderer.sprite.bounds.size;
-                renderer.transform.localScale = new Vector3(18f / bounds.x, 13f / bounds.y, 1f);
+                var cam = Camera.main;
+                float height = cam != null ? cam.orthographicSize * 2.3f : 13f;
+                float width = cam != null ? height * Mathf.Max(1f, cam.aspect) : 18f;
+                renderer.transform.localScale = new Vector3(width / bounds.x, height / bounds.y, 1f);
             }
         }
 
         private void EnsureBoardSurface()
         {
+            var shadow = transform.Find("BoardShadow");
+            if (shadow == null)
+            {
+                var shadowGo = new GameObject("BoardShadow");
+                shadow = shadowGo.transform;
+                shadow.SetParent(transform, false);
+            }
+
+            shadow.SetAsFirstSibling();
+            shadow.localRotation = Quaternion.identity;
+            shadow.localPosition = new Vector3((Width - 1) * CellSize * 0.5f + 0.08f, (Height - 1) * CellSize * 0.5f - 0.10f, 0.09f);
+            var shadowRenderer = shadow.GetComponent<SpriteRenderer>();
+            if (shadowRenderer == null) shadowRenderer = shadow.gameObject.AddComponent<SpriteRenderer>();
+            shadowRenderer.sprite = NatureLightRuntimeArt.BoardPanel();
+            shadowRenderer.sortingOrder = -30;
+            shadowRenderer.color = new Color(0.04f, 0.12f, 0.12f, 0.34f);
+
             var child = transform.Find("BoardSurface");
             if (child == null)
             {
@@ -586,6 +603,7 @@ namespace Game.Presentation
                 float width = Width * CellSize + 0.84f;
                 float height = Height * CellSize + 0.84f;
                 child.localScale = new Vector3(width / bounds.x, height / bounds.y, 1f);
+                shadow.localScale = new Vector3((width + 0.16f) / bounds.x, (height + 0.16f) / bounds.y, 1f);
             }
         }
     }
