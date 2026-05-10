@@ -1,0 +1,1 @@
+{"levelId":22,"worldId":1,"displayName":"Color Target","width":8,"height":8,"moveLimit":24,"goals":[{"type":"ClearTilesOfType","target":35,"targetTileType":1}]}

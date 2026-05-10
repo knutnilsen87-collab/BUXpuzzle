@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Game.Presentation;
 
 namespace Game.Core
 {
@@ -16,6 +17,7 @@ namespace Game.Core
         private readonly List<SpriteRenderer> _active = new();
         private SpriteRenderer _selected;
         private Color _selectedBase;
+        private readonly Dictionary<SpriteRenderer, Color> _baseColors = new();
 
         public void OnTileSelected(SpriteRenderer tile)
         {
@@ -34,6 +36,7 @@ namespace Game.Core
                     if (r == null) continue;
 
                     _active.Add(r);
+                    _baseColors[r] = r.color;
                     r.color = highlight;
                 }
             }
@@ -43,9 +46,10 @@ namespace Game.Core
         {
             foreach (var r in _active)
             {
-                if (r != null) r.color = Color.white;
+                if (r != null && _baseColors.TryGetValue(r, out var baseColor)) r.color = baseColor;
             }
             _active.Clear();
+            _baseColors.Clear();
 
             if (_selected != null)
                 _selected.color = _selectedBase;
@@ -68,13 +72,15 @@ namespace Game.Core
 
         private bool WouldMatch(SpriteRenderer a, GameObject bObj)
         {
-            // MVP heuristic:
-            // if swapping would align 3 same-colored sprites in a line
-            // This is intentionally simple but effective.
-            var b = bObj.GetComponent<SpriteRenderer>();
-            if (b == null) return false;
+            var aView = a.GetComponentInParent<TileView>();
+            var bView = bObj.GetComponentInParent<TileView>();
+            if (aView == null || bView == null) return false;
 
-            return a.color == b.color;
+            var root = FindFirstObjectByType<global::GameRoot>();
+            var board = root != null ? root.Board : null;
+            if (board == null) return false;
+
+            return board.WouldSwapCreateMatch(aView.X, aView.Y, bView.X, bView.Y);
         }
     }
 }

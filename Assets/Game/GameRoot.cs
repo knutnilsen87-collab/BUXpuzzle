@@ -48,7 +48,7 @@ public sealed class GameRoot : MonoBehaviour
         _level = _progression.CurrentLevel();
         ApplyLevelSpec(_level);
 
-        _board = new BoardEngine(Width, Height, Seed);
+        _board = new BoardEngine(Width, Height, Seed, _level.BoardRows);
         ApplyLevelMechanics();
         _feedback = gameObject.AddComponent<FeedbackSystem>();
         _rewards = new RewardPipeline();
@@ -172,8 +172,8 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         var hud = FindFirstObjectByType<SimpleHud>();
         int movesLeft = hud != null ? hud.movesLeft : 0;
         int movesUsed = Mathf.Max(0, _level.MoveLimit - movesLeft);
-        int goalProgress = _objectives != null ? _objectives.Progress : (hud != null ? hud.Matches : 0);
-        int goalTarget = _objectives != null ? _objectives.Target : (hud != null ? hud.targetMatches : _level.GoalMatches);
+        int goalProgress = _objectives != null ? _objectives.TotalProgress : (hud != null ? hud.Matches : 0);
+        int goalTarget = _objectives != null ? _objectives.TotalTarget : (hud != null ? hud.targetMatches : _level.GoalMatches);
         bool noInvalidSwaps = _invalidSwapCount == 0;
         bool noHintUsed = true;
         bool firstTry = !_usedRetry;
@@ -295,7 +295,7 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         ApplyLevelSpec(level);
         if (_objectives == null) _objectives = new ObjectiveTracker();
         _objectives.Initialize(_level);
-        _board = new BoardEngine(Width, Height, Seed);
+        _board = new BoardEngine(Width, Height, Seed, _level.BoardRows);
         ApplyLevelMechanics();
         TryInitSceneWiring(true);
     }
@@ -310,6 +310,8 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
 
     public void EndLevel(bool win, int secondsPlayed, int movesUsed, int goalsRemaining, bool smartMove)
     {
+        if (_levelEnded) return;
+        _levelEnded = true;
         ResultsData results = _rewards.Compute(win, secondsPlayed, movesUsed, goalsRemaining, smartMove);
         ApplyRewards(results);
 
@@ -420,7 +422,7 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         }
 
         Seed = seed;
-        _board = new BoardEngine(Width, Height, Seed);
+        _board = new BoardEngine(Width, Height, Seed, _level.BoardRows);
         ApplyLevelMechanics();
         _completionPending = false;
         _levelCompleteSent = false;

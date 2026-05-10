@@ -111,6 +111,8 @@ namespace Game.Presentation
                 if (State == TileState.ColorBomb) color = Color.Lerp(color, new Color(0.86f, 0.78f, 1f, 1f), 0.42f);
                 if (State == TileState.Frozen) color = Color.Lerp(color, new Color(0.55f, 0.84f, 0.62f, 1f), 0.46f);
                 if (State == TileState.Locked) color = Color.Lerp(color, new Color(0.48f, 0.70f, 0.42f, 1f), 0.52f);
+                if (State == TileState.Pebble) color = Color.Lerp(color, new Color(0.70f, 0.68f, 0.62f, 1f), 0.62f);
+                if (State == TileState.Ice) color = Color.Lerp(color, new Color(0.66f, 0.92f, 1f, 1f), 0.50f);
                 if (_clearing) color.a = 0.36f;
                 _baseRenderer.color = color;
             }
@@ -124,6 +126,8 @@ namespace Game.Presentation
                 if (State == TileState.ColorBomb) symbol = new Color(0.92f, 0.86f, 1f, 1f);
                 if (State == TileState.Frozen) symbol = new Color(0.78f, 1f, 0.82f, 1f);
                 if (State == TileState.Locked) symbol = new Color(0.68f, 0.92f, 0.62f, 1f);
+                if (State == TileState.Pebble) symbol = new Color(0.92f, 0.88f, 0.78f, 1f);
+                if (State == TileState.Ice) symbol = new Color(0.86f, 0.98f, 1f, 1f);
                 _symbolRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : symbol;
             }
 

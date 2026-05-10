@@ -1,0 +1,1 @@
+{"levelId":11,"worldId":1,"displayName":"Moss Intro","width":8,"height":8,"moveLimit":20,"mechanic":"Moss","designerNote":"First real blocker.","goals":[{"type":"ClearBlockers","target":6}],"boardRows":["........","..M..M..","........",".M....M.","........","........","..M..M..","........"]}

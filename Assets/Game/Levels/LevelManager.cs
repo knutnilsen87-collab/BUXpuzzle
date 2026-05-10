@@ -7,6 +7,7 @@ namespace Game.Levels
             int level = UnityEngine.Mathf.Max(1, levelNumber);
             var spec = GetRoadmapLevel(level);
             spec.LevelNumber = level;
+            spec.WorldId = spec.WorldId <= 0 ? 1 : spec.WorldId;
             spec.DisplayName = string.IsNullOrEmpty(spec.DisplayName) ? "Level " + level : spec.DisplayName;
             spec.GoalMatches = UnityEngine.Mathf.Max(1, spec.ObjectiveTarget);
             spec.BoardWidth = spec.BoardWidth <= 0 ? 8 : spec.BoardWidth;
@@ -14,6 +15,7 @@ namespace Game.Levels
             spec.MoveLimit = UnityEngine.Mathf.Max(5, spec.MoveLimit);
             spec.ParMoves = spec.ParMoves <= 0 ? UnityEngine.Mathf.Max(1, spec.MoveLimit - 4) : spec.ParMoves;
             spec.Seed = DeterministicEndlessLevelGenerator.SeedForLevel(level);
+            spec.RulesetId = string.IsNullOrEmpty(spec.RulesetId) ? "main_path_v1" : spec.RulesetId;
             return spec;
         }
 
@@ -24,6 +26,7 @@ namespace Game.Levels
             spec.LevelNumber = dailyIndex;
             spec.DisplayName = "Daily Grove " + dateUtc.ToString("yyyy-MM-dd");
             spec.Seed = DeterministicEndlessLevelGenerator.SeedForLevel(dailyIndex);
+            spec.RulesetId = "daily_grove_v1";
             spec.IsDailyEligible = true;
             spec.RewardLabel = "Daily badge";
             return spec;
@@ -84,8 +87,10 @@ namespace Game.Levels
             return new LevelSpec
             {
                 DisplayName = name,
+                WorldId = 1,
                 ObjectiveType = objective,
                 ObjectiveTarget = target,
+                Objectives = new[] { new ObjectiveSpec { Type = objective, Target = target, TargetTileType = targetTileType } },
                 MoveLimit = moves,
                 ParMoves = UnityEngine.Mathf.Max(1, moves - 4),
                 BoardWidth = 8,

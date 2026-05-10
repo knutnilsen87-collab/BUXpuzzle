@@ -274,6 +274,12 @@ namespace Game.Presentation
                 {
                     for (int x = 0; x < Width; x++)
                     {
+                        if (!_engine.IsCellActive(x, y))
+                        {
+                            _views[x, y] = null;
+                            continue;
+                        }
+
                         var pos = new Vector3(x * CellSize, y * CellSize, 0f);
                         GameObject go = Instantiate(activePrefab, transform);
                         go.name = "Tile_" + x + "_" + y;
@@ -297,9 +303,15 @@ namespace Game.Presentation
             {
                 for (int x = 0; x < Width; x++)
                 {
+                    if (!_engine.IsCellActive(x, y))
+                    {
+                        continue;
+                    }
+
                     var tile = _engine.Get(x, y);
                     int type = (int)tile.Type;
 
+                    if (_views[x, y] == null) continue;
                     _views[x, y].SetCoords(x, y);
                     _views[x, y].SetType(type);
                     _views[x, y].SetState(tile.State);
@@ -320,6 +332,11 @@ namespace Game.Presentation
             {
                 for (int x = 0; x < _views.GetLength(0); x++)
                 {
+                    if (_engine != null && !_engine.IsCellActive(x, y))
+                    {
+                        continue;
+                    }
+
                     if (_views[x, y] == null)
                     {
                         return true;

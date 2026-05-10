@@ -55,7 +55,7 @@ namespace Game.Progression
                 Win = win,
                 LevelId = level.LevelNumber,
                 Seed = level.Seed,
-                RulesetId = "main_path_v1",
+                RulesetId = string.IsNullOrEmpty(level.RulesetId) ? "main_path_v1" : level.RulesetId,
                 Score = score,
                 Stars = stars,
                 Medal = medal,

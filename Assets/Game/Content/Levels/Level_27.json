@@ -1,0 +1,1 @@
+{"levelId":27,"worldId":1,"displayName":"Vine And Drop","width":8,"height":8,"moveLimit":25,"mechanic":"Vine","goals":[{"type":"DropObjectsToExit","target":2}],"boardRows":["..O..O..","..V..V..","........","........","........","........","..V..V..","..D..D.."]}

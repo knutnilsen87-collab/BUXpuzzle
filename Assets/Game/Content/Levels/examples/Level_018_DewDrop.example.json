@@ -1,0 +1,25 @@
+{
+  "levelId": 18,
+  "worldId": 1,
+  "displayName": "Dew Drop",
+  "width": 8,
+  "height": 8,
+  "moveLimit": 22,
+  "mechanic": "DewDrop",
+  "goals": [
+    {
+      "type": "DropObjectsToExit",
+      "target": 1
+    }
+  ],
+  "boardRows": [
+    "........",
+    "........",
+    "........",
+    "........",
+    "........",
+    "........",
+    "........",
+    "...D...."
+  ]
+}

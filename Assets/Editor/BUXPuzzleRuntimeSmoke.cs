@@ -71,9 +71,10 @@ public static class BUXPuzzleRuntimeSmoke
         Require(root != null, "Runtime GameRoot exists", "Runtime GameRoot was not found.");
         Require(board != null, "Runtime BoardView exists", "Runtime BoardView was not found.");
         Require(input != null, "Runtime TileInput exists", "Runtime TileInput was not found.");
-        Require(tiles.Length == 64, "Runtime draws 64 tiles", $"Expected 64 tiles, found {tiles.Length}.");
-        Require(CountTileColliders(tiles) == 64, "Every runtime tile has a collider", "One or more runtime tiles are missing colliders.");
-        Require(CountSpriteSymbols(tiles) == 64, "Runtime tiles expose non-color sprite symbols", "One or more runtime tiles are missing sprite symbols.");
+        int expectedTiles = root != null && root.Board != null ? CountActiveCells(root.Board) : 64;
+        Require(tiles.Length == expectedTiles, "Runtime draws expected tile count", $"Expected {expectedTiles} tiles, found {tiles.Length}.");
+        Require(CountTileColliders(tiles) == expectedTiles, "Every runtime tile has a collider", "One or more runtime tiles are missing colliders.");
+        Require(CountSpriteSymbols(tiles) == expectedTiles, "Runtime tiles expose non-color sprite symbols", "One or more runtime tiles are missing sprite symbols.");
         Require(textSymbols.Length == 0, "Runtime does not use placeholder text symbols", $"Found {textSymbols.Length} TextMesh placeholder symbols.");
 
         if (Camera.main != null && tiles.Length > 0)
@@ -88,7 +89,7 @@ public static class BUXPuzzleRuntimeSmoke
             Failures.Add("Runtime has no MainCamera.");
         }
 
-        if (board != null && tiles.Length == 64)
+        if (board != null && tiles.Length == expectedTiles)
         {
             bool sawAccepted = false;
             bool sawRejected = false;
@@ -126,6 +127,21 @@ public static class BUXPuzzleRuntimeSmoke
         return count;
     }
 
+    private static int CountActiveCells(Game.Core.BoardEngine engine)
+    {
+        if (engine == null) return 0;
+        int count = 0;
+        for (int y = 0; y < engine.Height; y++)
+        {
+            for (int x = 0; x < engine.Width; x++)
+            {
+                if (engine.IsCellActive(x, y)) count++;
+            }
+        }
+
+        return count;
+    }
+
     private static int CountSpriteSymbols(TileView[] tiles)
     {
         int count = 0;
@@ -154,6 +170,13 @@ public static class BUXPuzzleRuntimeSmoke
 
     private static void OnLogMessageReceived(string condition, string stackTrace, LogType type)
     {
+        if ((condition != null && condition.Contains("UnityEditor.Search.SearchDatabase")) ||
+            (stackTrace != null && stackTrace.Contains("UnityEditor.Search.SearchDatabase")))
+        {
+            Warnings.Add("Ignored UnityEditor.Search startup exception during batchmode smoke.");
+            return;
+        }
+
         if (type == LogType.Exception)
         {
             Failures.Add(condition);

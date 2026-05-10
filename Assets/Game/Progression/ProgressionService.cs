@@ -5,15 +5,22 @@ namespace Game.Progression
     public sealed class ProgressionService
     {
         private readonly PlayerSave _save;
+        private readonly LevelRepository _levels;
 
         public ProgressionService(PlayerSave save)
         {
             _save = save ?? PlayerSave.Load();
+            _levels = new LevelRepository();
         }
 
         public LevelSpec CurrentLevel()
         {
-            return LevelManager.GetLevel(_save.CurrentLevel);
+            return _levels.GetLegacyLevel(_save.CurrentLevel);
+        }
+
+        public LevelSpecV2 CurrentLevelV2()
+        {
+            return _levels.GetLevel(_save.CurrentLevel);
         }
 
         public LevelSpec AdvanceLevel()

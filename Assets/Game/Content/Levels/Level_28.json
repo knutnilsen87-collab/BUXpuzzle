@@ -1,0 +1,1 @@
+{"levelId":28,"worldId":1,"displayName":"Mixed Moss Score","width":8,"height":8,"moveLimit":25,"mechanic":"Moss","goals":[{"type":"Score","target":2400},{"type":"ClearBlockers","target":6}],"boardRows":["........","..M..M..","........","........","........","........","..M..M..","........"]}

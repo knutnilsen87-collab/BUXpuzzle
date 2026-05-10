@@ -26,5 +26,6 @@ namespace Game.Core
         public List<BoardCoord> Cleared = new List<BoardCoord>();
         public List<DropMove> Drops = new List<DropMove>();
         public List<SpawnedTile> Spawned = new List<SpawnedTile>();
+        public List<DropObjectCollectedEvent> DropObjectsCollected = new List<DropObjectCollectedEvent>();
     }
 }

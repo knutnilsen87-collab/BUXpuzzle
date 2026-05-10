@@ -26,6 +26,7 @@ namespace Game.Levels
     public struct LevelSpec
     {
         public int LevelNumber;
+        public int WorldId;
         public string DisplayName;
         public int GoalMatches;
         public int MoveLimit;
@@ -33,12 +34,17 @@ namespace Game.Levels
         public int BoardWidth;
         public int BoardHeight;
         public int Seed;
+        public string RulesetId;
         public LevelObjectiveType ObjectiveType;
         public int ObjectiveTarget;
+        public ObjectiveSpec[] Objectives;
         public int TargetTileType;
         public LevelMechanic NewMechanic;
         public bool IsDailyEligible;
+        public bool AllowLose;
+        public bool ForceWinBias;
         public string RewardLabel;
         public string DesignerNote;
+        public string[] BoardRows;
     }
 }

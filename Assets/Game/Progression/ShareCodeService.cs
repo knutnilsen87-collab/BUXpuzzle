@@ -5,7 +5,7 @@ namespace Game.Progression
         public static string Build(SessionResult result)
         {
             if (result == null) return string.Empty;
-            return "BUX-" + result.RulesetId + "-L" + result.LevelId + "-S" + result.Seed + "-V1";
+            return "BUX-" + result.RulesetId + "-E" + DailyChallengeService.EngineVersion + "-F" + DailyChallengeService.ScoreFormulaVersion + "-L" + result.LevelId + "-S" + result.Seed;
         }
     }
 }
