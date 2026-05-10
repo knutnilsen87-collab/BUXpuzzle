@@ -295,6 +295,7 @@ namespace Game.Presentation
                         var tile = _engine.Get(x, y);
                         view.Init(x, y, (int)tile.Type);
                         view.SetState(tile.State);
+                        view.SetBlocker(_engine.GetCell(x, y).Blocker);
                         _views[x, y] = view;
                     }
                 }
@@ -320,6 +321,7 @@ namespace Game.Presentation
                     _views[x, y].SetCoords(x, y);
                     _views[x, y].SetType(type);
                     _views[x, y].SetState(tile.State);
+                    _views[x, y].SetBlocker(_engine.GetCell(x, y).Blocker);
                     _views[x, y].transform.localPosition = new Vector3(x * CellSize, y * CellSize, 0f);
                 }
             }

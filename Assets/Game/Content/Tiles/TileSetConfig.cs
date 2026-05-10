@@ -11,6 +11,7 @@ namespace Game.Content
         public Sprite LineVerticalOverlay;
         public Sprite BloomBombOverlay;
         public Sprite ColorClearOverlay;
+        public BlockerVisualConfig[] Blockers;
         public Sprite TileShadowSprite;
         public Sprite CellSlotSprite;
 
@@ -44,6 +45,22 @@ namespace Game.Content
                     return null;
             }
         }
+
+        public Sprite BlockerSprite(CellBlockerType blocker)
+        {
+            if (Blockers == null) return null;
+
+            for (int i = 0; i < Blockers.Length; i++)
+            {
+                var entry = Blockers[i];
+                if (entry != null && entry.Type == blocker)
+                {
+                    return entry.Sprite;
+                }
+            }
+
+            return null;
+        }
     }
 
     [System.Serializable]
@@ -59,5 +76,14 @@ namespace Game.Content
         public AudioClip MatchSound;
         public Color AccentColor = Color.white;
         public string AccessibilityLabel;
+    }
+
+    [System.Serializable]
+    public sealed class BlockerVisualConfig
+    {
+        public CellBlockerType Type;
+        public string DisplayName;
+        public Sprite Sprite;
+        public Color AccentColor = Color.white;
     }
 }
