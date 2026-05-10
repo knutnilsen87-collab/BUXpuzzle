@@ -18,6 +18,7 @@ namespace Game.Presentation
         private SpriteRenderer _specialOverlayRenderer;
         private TileSetConfig _tileSet;
         private Vector3 _baseScale;
+        private const float AuthoredTileFitSize = 0.92f;
         private bool _selected;
         private int _hintLevel;
         private bool _resolveHighlight;
@@ -130,6 +131,7 @@ namespace Game.Presentation
                 if (State == TileState.Ice) color = Color.Lerp(color, new Color(0.66f, 0.92f, 1f, 1f), 0.50f);
                 if (_clearing) color.a = 0.36f;
                 _baseRenderer.color = color;
+                FitRendererToCell(_baseRenderer, usesAuthoredTile ? AuthoredTileFitSize : 1f);
             }
 
             if (_symbolRenderer != null)
@@ -144,12 +146,14 @@ namespace Game.Presentation
                 if (State == TileState.Pebble) symbol = new Color(0.92f, 0.88f, 0.78f, 1f);
                 if (State == TileState.Ice) symbol = new Color(0.86f, 0.98f, 1f, 1f);
                 _symbolRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : symbol;
+                _symbolRenderer.transform.localScale = usesAuthoredTile ? Vector3.one : new Vector3(0.78f, 0.78f, 1f);
             }
 
             if (_specialOverlayRenderer != null)
             {
                 _specialOverlayRenderer.sprite = _tileSet != null ? _tileSet.SpecialOverlay(State) : null;
                 _specialOverlayRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
+                FitRendererToCell(_specialOverlayRenderer, AuthoredTileFitSize);
             }
 
             float scale = 1f;
@@ -181,9 +185,21 @@ namespace Game.Presentation
             _specialOverlayRenderer = EnsureSpriteRenderer("SpecialOverlay", 3, Vector3.zero, _specialOverlayRenderer);
 
             if (_shadowRenderer != null) _shadowRenderer.transform.localScale = new Vector3(1.08f, 1.00f, 1f);
-            if (_baseRenderer != null) _baseRenderer.transform.localScale = Vector3.one;
+            if (_baseRenderer != null && _baseRenderer.sprite == null) _baseRenderer.transform.localScale = Vector3.one;
             if (_symbolRenderer != null) _symbolRenderer.transform.localScale = new Vector3(0.78f, 0.78f, 1f);
-            if (_specialOverlayRenderer != null) _specialOverlayRenderer.transform.localScale = new Vector3(0.94f, 0.94f, 1f);
+            if (_specialOverlayRenderer != null && _specialOverlayRenderer.sprite == null) _specialOverlayRenderer.transform.localScale = new Vector3(0.94f, 0.94f, 1f);
+        }
+
+        private static void FitRendererToCell(SpriteRenderer renderer, float targetSize)
+        {
+            if (renderer == null || renderer.sprite == null) return;
+
+            var size = renderer.sprite.bounds.size;
+            float largest = Mathf.Max(size.x, size.y);
+            if (largest <= 0.0001f) return;
+
+            float scale = targetSize / largest;
+            renderer.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
         private SpriteRenderer EnsureSpriteRenderer(string childName, int sortingOrder, Vector3 localPosition, SpriteRenderer current)
