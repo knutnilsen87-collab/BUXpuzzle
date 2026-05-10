@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Game.Core;
 using UnityEngine;
 
 namespace Game.Presentation
@@ -85,9 +86,64 @@ namespace Game.Presentation
             {
                 float px = ((x + 0.5f) / TileSize - 0.5f) * 2f;
                 float py = ((y + 0.5f) / TileSize - 0.5f) * 2f;
-                float d = (px * px) / 0.82f + ((py + 0.08f) * (py + 0.08f)) / 0.50f;
-                float alpha = Mathf.Clamp01((1f - d) * 0.20f);
-                return new Color(0.03f, 0.08f, 0.09f, alpha);
+                float d = (px * px) / 0.88f + ((py + 0.14f) * (py + 0.14f)) / 0.36f;
+                float alpha = Mathf.Clamp01((1f - d) * 0.18f);
+                return new Color(0.02f, 0.06f, 0.07f, alpha);
+            });
+
+            return Store(key, texture);
+        }
+
+        public static Sprite CellSlot()
+        {
+            const string key = "cell-slot";
+            if (Cache.TryGetValue(key, out var cached)) return cached;
+
+            var texture = CreateTexture(TileSize, TileSize, (x, y) =>
+            {
+                float px = (x + 0.5f) / TileSize;
+                float py = (y + 0.5f) / TileSize;
+                float edge = RoundedRectDistance(px, py, 0.50f, 0.50f, 0.43f, 0.43f, 0.16f);
+                if (edge > 0.014f) return Clear();
+
+                float alpha = Mathf.Clamp01(1f - Mathf.Max(0f, edge) / 0.014f);
+                Color top = new Color(0.55f, 0.70f, 0.58f, 0.28f);
+                Color bottom = new Color(0.05f, 0.16f, 0.16f, 0.24f);
+                Color c = Color.Lerp(bottom, top, py);
+
+                if (edge > -0.035f) c = Color.Lerp(c, new Color(0.90f, 0.95f, 0.78f, 0.38f), 0.42f);
+                if (edge < -0.24f) c = Color.Lerp(c, new Color(0.03f, 0.10f, 0.10f, 0.26f), 0.30f);
+                float innerShade = Mathf.Clamp01((0.58f - py) * 0.70f);
+                c = Color.Lerp(c, new Color(0.02f, 0.08f, 0.08f, 0.28f), innerShade * 0.22f);
+                c.a *= alpha;
+                return c;
+            });
+
+            return Store(key, texture);
+        }
+
+        public static Sprite BlockerFrame(CellBlockerType blocker)
+        {
+            string key = "blocker-frame-" + blocker;
+            if (Cache.TryGetValue(key, out var cached)) return cached;
+
+            Color moss = new Color(0.35f, 0.86f, 0.26f, 1f);
+            Color vine = new Color(0.24f, 0.66f, 0.18f, 1f);
+            Color accent = blocker == CellBlockerType.Vine ? vine : moss;
+
+            var texture = CreateTexture(TileSize, TileSize, (x, y) =>
+            {
+                float px = (x + 0.5f) / TileSize;
+                float py = (y + 0.5f) / TileSize;
+                float edge = RoundedRectDistance(px, py, 0.50f, 0.50f, 0.45f, 0.45f, 0.18f);
+                float outer = Mathf.Clamp01(1f - Mathf.Abs(edge + 0.012f) / 0.030f);
+                float innerGlow = Mathf.Clamp01(1f - Mathf.Abs(edge + 0.075f) / 0.045f) * 0.42f;
+                float alpha = Mathf.Max(outer * 0.72f, innerGlow * 0.38f);
+                if (alpha <= 0.01f) return Clear();
+
+                Color c = Color.Lerp(accent, Color.white, py > 0.55f ? 0.18f : 0.02f);
+                c.a = alpha;
+                return c;
             });
 
             return Store(key, texture);
@@ -106,8 +162,13 @@ namespace Game.Presentation
                 if (edge > 0.012f) return Clear();
 
                 float alpha = Mathf.Clamp01(1f - Mathf.Max(0f, edge) / 0.012f);
-                Color c = Color.Lerp(new Color(0.18f, 0.35f, 0.36f, 0.95f), new Color(0.55f, 0.75f, 0.57f, 0.92f), py);
-                if (edge > -0.035f) c = Color.Lerp(c, new Color(0.92f, 0.88f, 0.68f, 1f), 0.42f);
+                Color innerBottom = new Color(0.24f, 0.43f, 0.39f, 0.96f);
+                Color innerTop = new Color(0.66f, 0.80f, 0.60f, 0.94f);
+                float radial = 1f - Mathf.Clamp01(Vector2.Distance(new Vector2(px, py), new Vector2(0.48f, 0.58f)) / 0.62f);
+                Color c = Color.Lerp(innerBottom, innerTop, py);
+                c = Color.Lerp(c, new Color(0.78f, 0.88f, 0.65f, 0.95f), radial * 0.18f);
+                if (edge > -0.035f) c = Color.Lerp(c, new Color(0.96f, 0.90f, 0.66f, 1f), 0.48f);
+                if (edge < -0.32f) c = Color.Lerp(c, new Color(0.18f, 0.34f, 0.34f, 0.94f), 0.12f);
                 c.a *= alpha;
                 return c;
             });

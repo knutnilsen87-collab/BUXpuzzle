@@ -87,6 +87,16 @@ Authored tile sprites are fitted in `TileView` to 92% of the board cell's larges
 - The imported JPG source art was converted to PNG with transparent keyed backgrounds. Manual visual QA should confirm there are no remaining unwanted background pixels around each sprite.
 - Screenshots are not committed in this pass; visual QA should be done in the Unity Game view.
 
+## HUD Polish Backlog
+
+The current HUD has a small Moss/Vine objective chip so blocker goals visually match the board, but it is still an IMGUI placeholder. Production polish should move it to a prefab or UI Toolkit/uGUI layer with:
+
+- Floating cards with softer corners and depth.
+- Objective icon sourced from the same blocker/tile visual config.
+- Progress track with clearer fill, milestone ticks and completion state.
+- Better typography hierarchy for level, score and moves.
+- Phone-safe layout variants for narrow aspect ratios.
+
 ## Manual QA Checklist
 
 - Open the `game` scene.

@@ -28,7 +28,7 @@ namespace Game.Presentation.Juice
             if (Time.unscaledTime - _lastAt < minInterval) return;
             _lastAt = Time.unscaledTime;
 
-#if UNITY_IOS || UNITY_ANDROID
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
             Handheld.Vibrate();
 #endif
         }

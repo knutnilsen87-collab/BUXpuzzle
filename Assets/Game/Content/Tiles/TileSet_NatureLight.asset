@@ -16,6 +16,7 @@ MonoBehaviour:
   - Type: 0
     DisplayName: Dew
     BaseSprite: {fileID: 21300000, guid: 24e60c30bcdc4af79ff9f8770387941f, type: 3}
+    VisualScale: 0.96
     HighlightSprite: {fileID: 0}
     MatchedSprite: {fileID: 0}
     DisabledSprite: {fileID: 0}
@@ -26,6 +27,7 @@ MonoBehaviour:
   - Type: 1
     DisplayName: Leaf
     BaseSprite: {fileID: 21300000, guid: ee8caaaeba3c4e5f8327c5dd003b76d3, type: 3}
+    VisualScale: 0.92
     HighlightSprite: {fileID: 0}
     MatchedSprite: {fileID: 0}
     DisabledSprite: {fileID: 0}
@@ -36,6 +38,7 @@ MonoBehaviour:
   - Type: 2
     DisplayName: Sun
     BaseSprite: {fileID: 21300000, guid: 3d5dcfe6c0a7478f897ac3ad43fff166, type: 3}
+    VisualScale: 0.98
     HighlightSprite: {fileID: 0}
     MatchedSprite: {fileID: 0}
     DisabledSprite: {fileID: 0}
@@ -46,6 +49,7 @@ MonoBehaviour:
   - Type: 3
     DisplayName: Berry
     BaseSprite: {fileID: 21300000, guid: f08e8642466942ce9d239f82296eb8d5, type: 3}
+    VisualScale: 1.02
     HighlightSprite: {fileID: 0}
     MatchedSprite: {fileID: 0}
     DisabledSprite: {fileID: 0}
@@ -56,6 +60,7 @@ MonoBehaviour:
   - Type: 4
     DisplayName: Flower
     BaseSprite: {fileID: 21300000, guid: ee7d99ab04b74404a9a1dbfd551b20ac, type: 3}
+    VisualScale: 0.98
     HighlightSprite: {fileID: 0}
     MatchedSprite: {fileID: 0}
     DisabledSprite: {fileID: 0}
@@ -66,6 +71,7 @@ MonoBehaviour:
   - Type: 5
     DisplayName: Pebble
     BaseSprite: {fileID: 21300000, guid: ebcbf20b281b43e0baf18e2ce085c14b, type: 3}
+    VisualScale: 1.06
     HighlightSprite: {fileID: 0}
     MatchedSprite: {fileID: 0}
     DisabledSprite: {fileID: 0}

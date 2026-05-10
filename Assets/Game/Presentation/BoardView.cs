@@ -14,10 +14,13 @@ namespace Game.Presentation
 {
     public sealed class BoardView : UnityEngine.MonoBehaviour
     {
-    [SerializeField]
-    private GameObject natureLightTilePrefab;
-    [SerializeField]
-    private TileSetConfig tileSetConfig;
+        [SerializeField]
+        private GameObject natureLightTilePrefab;
+        [SerializeField]
+        private TileSetConfig tileSetConfig;
+        [SerializeField]
+        [Range(0.72f, 1.18f)]
+        private float tileVisualScale = 1f;
 
         public int Width = 8;
         public int Height = 8;
@@ -28,6 +31,8 @@ namespace Game.Presentation
         private BoardEngine _engine;
         private TileView[,] _views;
         private SpriteRenderer _boardSurface;
+        private Transform _slotRoot;
+        private string _slotLayoutKey;
         private BoardResolveAnimator _resolveAnimator;
         private bool _isResolving;
         private int _invalidSwapCount;
@@ -291,6 +296,7 @@ namespace Game.Presentation
                         var view = go.GetComponent<TileView>();
                         if (view == null) view = go.AddComponent<TileView>();
                         view.SetTileSet(tileSetConfig);
+                        view.SetVisualScale(tileVisualScale);
 
                         var tile = _engine.Get(x, y);
                         view.Init(x, y, (int)tile.Type);
@@ -318,6 +324,7 @@ namespace Game.Presentation
 
                     if (_views[x, y] == null) continue;
                     _views[x, y].SetTileSet(tileSetConfig);
+                    _views[x, y].SetVisualScale(tileVisualScale);
                     _views[x, y].SetCoords(x, y);
                     _views[x, y].SetType(type);
                     _views[x, y].SetState(tile.State);
@@ -381,6 +388,7 @@ namespace Game.Presentation
                     var view = go.GetComponent<TileView>();
                     if (view == null) view = go.AddComponent<TileView>();
                     view.SetTileSet(tileSetConfig);
+                    view.SetVisualScale(tileVisualScale);
 
                     int type = rng.Next(0, 6);
                     view.Init(x, y, type);
@@ -556,6 +564,7 @@ namespace Game.Presentation
 
             EnsureBackdrop();
             EnsureBoardSurface();
+            EnsureCellSlots();
         }
 
         private void EnsureBackdrop()
@@ -630,6 +639,87 @@ namespace Game.Presentation
                 child.localScale = new Vector3(width / bounds.x, height / bounds.y, 1f);
                 shadow.localScale = new Vector3((width + 0.16f) / bounds.x, (height + 0.16f) / bounds.y, 1f);
             }
+        }
+
+        private void EnsureCellSlots()
+        {
+            string key = BuildSlotLayoutKey();
+            if (_slotRoot != null && _slotLayoutKey == key)
+            {
+                return;
+            }
+
+            var root = transform.Find("CellSlots");
+            if (root == null)
+            {
+                var go = new GameObject("CellSlots");
+                root = go.transform;
+                root.SetParent(transform, false);
+            }
+
+            _slotRoot = root;
+            _slotLayoutKey = key;
+            _slotRoot.localPosition = Vector3.zero;
+            _slotRoot.localRotation = Quaternion.identity;
+
+            for (int i = _slotRoot.childCount - 1; i >= 0; i--)
+            {
+                var child = _slotRoot.GetChild(i);
+                if (Application.isPlaying) Destroy(child.gameObject); else DestroyImmediate(child.gameObject);
+            }
+
+            var slotSprite = tileSetConfig != null && tileSetConfig.CellSlotSprite != null ? tileSetConfig.CellSlotSprite : NatureLightRuntimeArt.CellSlot();
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (!CellActiveForPresentation(x, y)) continue;
+
+                    var go = new GameObject("CellSlot_" + x + "_" + y);
+                    var child = go.transform;
+                    child.SetParent(_slotRoot, false);
+                    child.localPosition = new Vector3(x * CellSize, y * CellSize, 0.06f);
+                    child.localRotation = Quaternion.identity;
+
+                    var renderer = go.AddComponent<SpriteRenderer>();
+                    renderer.sprite = slotSprite;
+                    renderer.sortingOrder = -12;
+                    renderer.color = Color.white;
+                    ScaleRendererToCell(renderer, CellSize * 0.92f);
+                }
+            }
+        }
+
+        private string BuildSlotLayoutKey()
+        {
+            var builder = new System.Text.StringBuilder(Width * Height + 16);
+            builder.Append(Width).Append('x').Append(Height).Append('@').Append(CellSize.ToString("0.###")).Append(':');
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    builder.Append(CellActiveForPresentation(x, y) ? '1' : '0');
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        private bool CellActiveForPresentation(int x, int y)
+        {
+            return _engine == null || _engine.IsCellActive(x, y);
+        }
+
+        private static void ScaleRendererToCell(SpriteRenderer renderer, float targetSize)
+        {
+            if (renderer == null || renderer.sprite == null) return;
+
+            var size = renderer.sprite.bounds.size;
+            float largest = Mathf.Max(size.x, size.y);
+            if (largest <= 0.0001f) return;
+
+            float scale = targetSize / largest;
+            renderer.transform.localScale = new Vector3(scale, scale, 1f);
         }
     }
 }

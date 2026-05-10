@@ -69,6 +69,7 @@ namespace Game.Content
         public TileType Type;
         public string DisplayName;
         public Sprite BaseSprite;
+        public float VisualScale = 1f;
         public Sprite HighlightSprite;
         public Sprite MatchedSprite;
         public Sprite DisabledSprite;

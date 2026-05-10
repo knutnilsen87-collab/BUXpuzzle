@@ -13,14 +13,17 @@ namespace Game.Presentation
         public TileState State { get; private set; }
         public CellBlockerType Blocker { get; private set; }
 
+        private Transform _visualRoot;
         private SpriteRenderer _shadowRenderer;
         private SpriteRenderer _baseRenderer;
         private SpriteRenderer _symbolRenderer;
         private SpriteRenderer _specialOverlayRenderer;
+        private SpriteRenderer _blockerFrameRenderer;
         private SpriteRenderer _blockerOverlayRenderer;
         private TileSetConfig _tileSet;
         private Vector3 _baseScale;
-        private const float AuthoredTileFitSize = 0.92f;
+        private float _globalVisualScale = 1f;
+        private const float AuthoredTileFitSize = 0.89f;
         private bool _selected;
         private int _hintLevel;
         private bool _resolveHighlight;
@@ -78,6 +81,12 @@ namespace Game.Presentation
             ApplyVisuals();
         }
 
+        public void SetVisualScale(float scale)
+        {
+            _globalVisualScale = Mathf.Clamp(scale <= 0f ? 1f : scale, 0.72f, 1.18f);
+            ApplyVisuals();
+        }
+
         public void SetSelected(bool selected)
         {
             _selected = selected;
@@ -120,6 +129,8 @@ namespace Game.Presentation
 
             var visual = _tileSet != null ? _tileSet.Find((TileType)Type) : null;
             bool usesAuthoredTile = visual != null && visual.BaseSprite != null;
+            float perTileScale = visual != null && visual.VisualScale > 0f ? visual.VisualScale : 1f;
+            float visualFit = AuthoredTileFitSize * perTileScale;
 
             if (_baseRenderer != null)
             {
@@ -139,7 +150,7 @@ namespace Game.Presentation
                 if (State == TileState.Ice) color = Color.Lerp(color, new Color(0.66f, 0.92f, 1f, 1f), 0.50f);
                 if (_clearing) color.a = 0.36f;
                 _baseRenderer.color = color;
-                FitRendererToCell(_baseRenderer, usesAuthoredTile ? AuthoredTileFitSize : 1f);
+                FitRendererToCell(_baseRenderer, usesAuthoredTile ? visualFit : 1f);
             }
 
             if (_symbolRenderer != null)
@@ -161,14 +172,21 @@ namespace Game.Presentation
             {
                 _specialOverlayRenderer.sprite = _tileSet != null ? _tileSet.SpecialOverlay(State) : null;
                 _specialOverlayRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
-                FitRendererToCell(_specialOverlayRenderer, AuthoredTileFitSize);
+                FitRendererToCell(_specialOverlayRenderer, visualFit);
+            }
+
+            if (_blockerFrameRenderer != null)
+            {
+                _blockerFrameRenderer.sprite = Blocker == CellBlockerType.None ? null : NatureLightRuntimeArt.BlockerFrame(Blocker);
+                _blockerFrameRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.28f) : Color.white;
+                FitRendererToCell(_blockerFrameRenderer, 1.04f);
             }
 
             if (_blockerOverlayRenderer != null)
             {
                 _blockerOverlayRenderer.sprite = _tileSet != null ? _tileSet.BlockerSprite(Blocker) : null;
-                _blockerOverlayRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.30f) : Color.white;
-                FitRendererToCell(_blockerOverlayRenderer, AuthoredTileFitSize);
+                _blockerOverlayRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.26f) : new Color(1f, 1f, 1f, 0.78f);
+                FitRendererToCell(_blockerOverlayRenderer, 0.98f);
             }
 
             float scale = 1f;
@@ -178,9 +196,10 @@ namespace Game.Presentation
             if (_resolveHighlight) scale = Mathf.Max(scale, 1.12f);
             if (_landing) scale = 0.94f;
             if (_clearing) scale = 0.74f;
-            var finalScale = _baseScale * scale;
+            var finalScale = Vector3.one * (_globalVisualScale * scale);
             if (_landing) finalScale = new Vector3(finalScale.x * 1.05f, finalScale.y * 0.92f, finalScale.z);
-            transform.localScale = finalScale;
+            if (_visualRoot != null) _visualRoot.localScale = finalScale;
+            transform.localScale = _baseScale;
         }
 
         private void HidePlaceholderMeshes()
@@ -194,17 +213,35 @@ namespace Game.Presentation
 
         private void EnsureRenderers()
         {
-            _shadowRenderer = EnsureSpriteRenderer("TileShadow", -3, new Vector3(0.04f, -0.06f, 0f), _shadowRenderer);
+            _visualRoot = EnsureVisualRoot();
+            _shadowRenderer = EnsureSpriteRenderer("TileShadow", -3, new Vector3(0.045f, -0.075f, 0f), _shadowRenderer);
             _baseRenderer = EnsureSpriteRenderer("TileBase", 0, Vector3.zero, _baseRenderer);
             _symbolRenderer = EnsureSpriteRenderer("TileSymbol", 2, new Vector3(0f, 0.01f, 0f), _symbolRenderer);
             _specialOverlayRenderer = EnsureSpriteRenderer("SpecialOverlay", 3, Vector3.zero, _specialOverlayRenderer);
-            _blockerOverlayRenderer = EnsureSpriteRenderer("BlockerOverlay", 4, Vector3.zero, _blockerOverlayRenderer);
+            _blockerFrameRenderer = EnsureSpriteRenderer("BlockerFrame", 4, Vector3.zero, _blockerFrameRenderer);
+            _blockerOverlayRenderer = EnsureSpriteRenderer("BlockerOverlay", 5, Vector3.zero, _blockerOverlayRenderer);
 
-            if (_shadowRenderer != null) _shadowRenderer.transform.localScale = new Vector3(1.08f, 1.00f, 1f);
+            if (_shadowRenderer != null) _shadowRenderer.transform.localScale = new Vector3(1.02f, 0.86f, 1f);
             if (_baseRenderer != null && _baseRenderer.sprite == null) _baseRenderer.transform.localScale = Vector3.one;
             if (_symbolRenderer != null) _symbolRenderer.transform.localScale = new Vector3(0.78f, 0.78f, 1f);
             if (_specialOverlayRenderer != null && _specialOverlayRenderer.sprite == null) _specialOverlayRenderer.transform.localScale = new Vector3(0.94f, 0.94f, 1f);
+            if (_blockerFrameRenderer != null && _blockerFrameRenderer.sprite == null) _blockerFrameRenderer.transform.localScale = Vector3.one;
             if (_blockerOverlayRenderer != null && _blockerOverlayRenderer.sprite == null) _blockerOverlayRenderer.transform.localScale = new Vector3(0.94f, 0.94f, 1f);
+        }
+
+        private Transform EnsureVisualRoot()
+        {
+            var root = transform.Find("VisualRoot");
+            if (root == null)
+            {
+                var go = new GameObject("VisualRoot");
+                root = go.transform;
+                root.SetParent(transform, false);
+            }
+
+            root.localPosition = Vector3.zero;
+            root.localRotation = Quaternion.identity;
+            return root;
         }
 
         private static void FitRendererToCell(SpriteRenderer renderer, float targetSize)
@@ -223,12 +260,17 @@ namespace Game.Presentation
         {
             if (current != null) return current;
 
-            var child = transform.Find(childName);
+            var child = _visualRoot != null ? _visualRoot.Find(childName) : null;
+            if (child == null) child = transform.Find(childName);
             if (child == null)
             {
                 var go = new GameObject(childName);
                 child = go.transform;
-                child.SetParent(transform, false);
+                child.SetParent(_visualRoot != null ? _visualRoot : transform, false);
+            }
+            else if (_visualRoot != null && child.parent != _visualRoot)
+            {
+                child.SetParent(_visualRoot, false);
             }
 
             child.localPosition = localPosition;

@@ -1,4 +1,4 @@
-using Game.Audio;
+﻿using Game.Audio;
 using Game.Telemetry;
 using UnityEngine;
 
@@ -29,6 +29,8 @@ namespace Game.UI
         private Texture2D _trackTexture;
         private Texture2D _fillTexture;
         private Texture2D _glowTexture;
+        private Texture2D _mossIconTexture;
+        private Texture2D _vineIconTexture;
 
         public int Matches => _matches;
         public static float ReservedTopPixels => (Screen.height - Screen.safeArea.yMax) + HudTopMargin + HudHeight + 22f;
@@ -64,8 +66,15 @@ namespace Game.UI
             GUI.Label(new Rect(left.x + 12f, left.y + 9f, left.width - 24f, 20f), $"Level {levelId}", _titleStyle);
             GUI.Label(new Rect(left.x + 12f, left.y + 33f, left.width - 24f, 18f), "Rolig spill", _smallStyle);
 
-            GUI.Label(new Rect(center.x + 12f, center.y + 8f, center.width - 24f, 19f), $"Mål: {objectiveLabel}", _centerStyle);
-            GUI.Label(new Rect(center.x + 12f, center.y + 28f, center.width - 24f, 17f), $"{_matches} av {targetMatches}", _centerStyle);
+            bool hasObjectiveIcon = IsMossObjective() || IsVineObjective();
+            if (hasObjectiveIcon)
+            {
+                DrawObjectiveIcon(new Rect(center.x + 14f, center.y + 11f, 28f, 28f));
+            }
+
+            float objectiveTextInset = hasObjectiveIcon ? 44f : 12f;
+            GUI.Label(new Rect(center.x + objectiveTextInset, center.y + 8f, center.width - objectiveTextInset - 12f, 19f), objectiveLabel, _centerStyle);
+            GUI.Label(new Rect(center.x + objectiveTextInset, center.y + 28f, center.width - objectiveTextInset - 12f, 17f), $"{_matches} av {targetMatches}", _centerStyle);
 
             float p = Mathf.Clamp01(targetMatches <= 0 ? 0f : _displayMatches / targetMatches);
             var track = new Rect(center.x + 14f, center.y + 49f, center.width - 28f, 6f);
@@ -191,12 +200,58 @@ namespace Game.UI
             _trackTexture = MakeTexture(new Color(0.04f, 0.11f, 0.12f, 0.68f));
             _fillTexture = MakeTexture(new Color(0.92f, 0.76f, 0.28f, 1f));
             _glowTexture = MakeTexture(new Color(1f, 0.98f, 0.66f, 0.55f));
+            _mossIconTexture = MakeObjectiveIcon(new Color(0.34f, 0.82f, 0.24f, 1f), new Color(0.12f, 0.36f, 0.12f, 1f));
+            _vineIconTexture = MakeObjectiveIcon(new Color(0.20f, 0.64f, 0.18f, 1f), new Color(0.10f, 0.28f, 0.10f, 1f));
         }
 
         private static Texture2D MakeTexture(Color color)
         {
             var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
             texture.SetPixel(0, 0, color);
+            texture.Apply();
+            return texture;
+        }
+
+        private bool IsMossObjective()
+        {
+            return !string.IsNullOrEmpty(objectiveLabel) && objectiveLabel.IndexOf("Moss", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private bool IsVineObjective()
+        {
+            return !string.IsNullOrEmpty(objectiveLabel) && objectiveLabel.IndexOf("Vine", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void DrawObjectiveIcon(Rect rect)
+        {
+            GUI.DrawTexture(rect, IsVineObjective() ? _vineIconTexture : _mossIconTexture, ScaleMode.StretchToFill);
+        }
+
+        private static Texture2D MakeObjectiveIcon(Color top, Color bottom)
+        {
+            const int size = 32;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float px = ((x + 0.5f) / size - 0.5f) * 2f;
+                    float py = ((y + 0.5f) / size - 0.5f) * 2f;
+                    float d = Mathf.Sqrt(px * px + py * py);
+                    if (d > 0.92f)
+                    {
+                        texture.SetPixel(x, y, Color.clear);
+                        continue;
+                    }
+
+                    Color c = Color.Lerp(bottom, top, (py + 1f) * 0.5f);
+                    float rim = Mathf.Clamp01((d - 0.68f) / 0.24f);
+                    c = Color.Lerp(c, new Color(0.90f, 1f, 0.72f, 1f), rim * 0.28f);
+                    c.a = Mathf.Clamp01((0.92f - d) / 0.08f);
+                    texture.SetPixel(x, y, c);
+                }
+            }
+
             texture.Apply();
             return texture;
         }
