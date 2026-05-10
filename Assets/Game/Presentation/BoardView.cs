@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Audio;
+using Game.Content;
 using Game.Core;
 using Game.Presentation.Juice;
 using Game.Presentation.Layout;
@@ -15,6 +16,8 @@ namespace Game.Presentation
     {
     [SerializeField]
     private GameObject natureLightTilePrefab;
+    [SerializeField]
+    private TileSetConfig tileSetConfig;
 
         public int Width = 8;
         public int Height = 8;
@@ -287,6 +290,7 @@ namespace Game.Presentation
 
                         var view = go.GetComponent<TileView>();
                         if (view == null) view = go.AddComponent<TileView>();
+                        view.SetTileSet(tileSetConfig);
 
                         var tile = _engine.Get(x, y);
                         view.Init(x, y, (int)tile.Type);
@@ -312,6 +316,7 @@ namespace Game.Presentation
                     int type = (int)tile.Type;
 
                     if (_views[x, y] == null) continue;
+                    _views[x, y].SetTileSet(tileSetConfig);
                     _views[x, y].SetCoords(x, y);
                     _views[x, y].SetType(type);
                     _views[x, y].SetState(tile.State);
@@ -373,6 +378,7 @@ namespace Game.Presentation
 
                     var view = go.GetComponent<TileView>();
                     if (view == null) view = go.AddComponent<TileView>();
+                    view.SetTileSet(tileSetConfig);
 
                     int type = rng.Next(0, 6);
                     view.Init(x, y, type);

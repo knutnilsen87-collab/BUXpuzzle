@@ -1,11 +1,9 @@
 fileFormatVersion: 2
-guid: 76359bd42ba74b3aa27a7fc05694cf50
+guid: 24e60c30bcdc4af79ff9f8770387941f
 TextureImporter:
-  internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
-    mipMapMode: 0
     enableMipMap: 0
     sRGBTexture: 1
   isReadable: 0
@@ -20,7 +18,6 @@ TextureImporter:
   nPOTScale: 0
   compressionQuality: 50
   spriteMode: 1
-  spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}

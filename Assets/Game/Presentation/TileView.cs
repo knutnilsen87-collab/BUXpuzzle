@@ -1,5 +1,6 @@
 using UnityEngine;
 using Game.Core;
+using Game.Content;
 
 namespace Game.Presentation
 {
@@ -14,6 +15,8 @@ namespace Game.Presentation
         private SpriteRenderer _shadowRenderer;
         private SpriteRenderer _baseRenderer;
         private SpriteRenderer _symbolRenderer;
+        private SpriteRenderer _specialOverlayRenderer;
+        private TileSetConfig _tileSet;
         private Vector3 _baseScale;
         private bool _selected;
         private int _hintLevel;
@@ -50,6 +53,13 @@ namespace Game.Presentation
         public void SetType(int type)
         {
             Type = Mathf.Clamp(type, 0, 5);
+            ApplyVisuals();
+        }
+
+        public void SetTileSet(TileSetConfig tileSet)
+        {
+            if (_tileSet == tileSet) return;
+            _tileSet = tileSet;
             ApplyVisuals();
         }
 
@@ -95,13 +105,18 @@ namespace Game.Presentation
 
             if (_shadowRenderer != null)
             {
-                _shadowRenderer.sprite = NatureLightRuntimeArt.TileShadow();
+                _shadowRenderer.sprite = _tileSet != null && _tileSet.TileShadowSprite != null ? _tileSet.TileShadowSprite : NatureLightRuntimeArt.TileShadow();
                 _shadowRenderer.color = _selected ? new Color(1f, 1f, 1f, 0.92f) : Color.white;
             }
 
+            var visual = _tileSet != null ? _tileSet.Find((TileType)Type) : null;
+            bool usesAuthoredTile = visual != null && visual.BaseSprite != null;
+
             if (_baseRenderer != null)
             {
-                _baseRenderer.sprite = NatureLightRuntimeArt.TileBase(Type, _selected);
+                _baseRenderer.sprite = usesAuthoredTile
+                    ? (_selected && visual.HighlightSprite != null ? visual.HighlightSprite : visual.BaseSprite)
+                    : NatureLightRuntimeArt.TileBase(Type, _selected);
                 Color color = Color.white;
                 if (_hintLevel > 0) color = Color.Lerp(color, new Color(1f, 0.95f, 0.48f, 1f), _hintLevel == 2 ? 0.45f : 0.25f);
                 if (_resolveHighlight) color = Color.Lerp(color, new Color(1f, 1f, 0.72f, 1f), 0.35f);
@@ -119,7 +134,7 @@ namespace Game.Presentation
 
             if (_symbolRenderer != null)
             {
-                _symbolRenderer.sprite = NatureLightRuntimeArt.TileSymbol(Type);
+                _symbolRenderer.sprite = usesAuthoredTile ? null : NatureLightRuntimeArt.TileSymbol(Type);
                 Color symbol = _selected ? new Color(1f, 1f, 1f, 1f) : new Color(1f, 1f, 1f, 0.94f);
                 if (State == TileState.Line) symbol = new Color(1f, 0.98f, 0.72f, 1f);
                 if (State == TileState.Burst) symbol = new Color(1f, 0.86f, 0.94f, 1f);
@@ -129,6 +144,12 @@ namespace Game.Presentation
                 if (State == TileState.Pebble) symbol = new Color(0.92f, 0.88f, 0.78f, 1f);
                 if (State == TileState.Ice) symbol = new Color(0.86f, 0.98f, 1f, 1f);
                 _symbolRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : symbol;
+            }
+
+            if (_specialOverlayRenderer != null)
+            {
+                _specialOverlayRenderer.sprite = _tileSet != null ? _tileSet.SpecialOverlay(State) : null;
+                _specialOverlayRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
             }
 
             float scale = 1f;
@@ -157,10 +178,12 @@ namespace Game.Presentation
             _shadowRenderer = EnsureSpriteRenderer("TileShadow", -3, new Vector3(0.04f, -0.06f, 0f), _shadowRenderer);
             _baseRenderer = EnsureSpriteRenderer("TileBase", 0, Vector3.zero, _baseRenderer);
             _symbolRenderer = EnsureSpriteRenderer("TileSymbol", 2, new Vector3(0f, 0.01f, 0f), _symbolRenderer);
+            _specialOverlayRenderer = EnsureSpriteRenderer("SpecialOverlay", 3, Vector3.zero, _specialOverlayRenderer);
 
             if (_shadowRenderer != null) _shadowRenderer.transform.localScale = new Vector3(1.08f, 1.00f, 1f);
             if (_baseRenderer != null) _baseRenderer.transform.localScale = Vector3.one;
             if (_symbolRenderer != null) _symbolRenderer.transform.localScale = new Vector3(0.78f, 0.78f, 1f);
+            if (_specialOverlayRenderer != null) _specialOverlayRenderer.transform.localScale = new Vector3(0.94f, 0.94f, 1f);
         }
 
         private SpriteRenderer EnsureSpriteRenderer(string childName, int sortingOrder, Vector3 localPosition, SpriteRenderer current)

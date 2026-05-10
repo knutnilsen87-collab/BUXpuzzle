@@ -7,15 +7,6 @@ namespace Game.Presentation
     {
         private const int TileSize = 128;
         private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
-        private static readonly string[] TileArtResourceNames =
-        {
-            "leaf",
-            "drop",
-            "sun",
-            "flower",
-            "stone",
-            "berry",
-        };
 
         private static readonly Color[] BaseColors =
         {
@@ -65,13 +56,6 @@ namespace Game.Presentation
             type = Mathf.Clamp(type, 0, 5);
             string key = "tile-symbol-" + type;
             if (Cache.TryGetValue(key, out var cached)) return cached;
-
-            var authored = Resources.Load<Sprite>("NatureLight/Tiles/" + TileArtResourceNames[type]);
-            if (authored != null)
-            {
-                Cache[key] = authored;
-                return authored;
-            }
 
             var texture = CreateTexture(TileSize, TileSize, (x, y) =>
             {

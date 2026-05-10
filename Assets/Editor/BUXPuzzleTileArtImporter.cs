@@ -4,7 +4,7 @@ namespace Game.EditorTools
 {
     public sealed class BUXPuzzleTileArtImporter : AssetPostprocessor
     {
-        private const string TileArtPath = "Assets/Game/Presentation/NatureLight/Resources/NatureLight/Tiles/";
+        private const string TileArtPath = "Assets/Game/Art/Tiles/";
 
         void OnPreprocessTexture()
         {
