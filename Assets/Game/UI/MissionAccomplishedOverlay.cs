@@ -87,13 +87,13 @@ namespace Game.UI
             GUI.enabled = active;
             if (GUI.Button(new Rect(rect.x + 42f, rect.y + 142f, rect.width - 84f, 38f), "Neste level", _button))
             {
-                GameAudioController.Ensure().Play(AudioEvent.ButtonTap);
+                GameAudioController.Ensure().Play(AudioEvent.UIButtonTap);
                 _nextLevel?.Invoke();
             }
 
             if (GUI.Button(new Rect(rect.x + 42f, rect.y + 186f, rect.width - 84f, 30f), "Spill igjen", _button))
             {
-                GameAudioController.Ensure().Play(AudioEvent.ButtonTap, 0.75f);
+                GameAudioController.Ensure().Play(AudioEvent.UIButtonTap, 0.75f);
                 _replay?.Invoke();
             }
             GUI.enabled = true;

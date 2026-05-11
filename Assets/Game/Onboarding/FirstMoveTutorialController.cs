@@ -55,7 +55,7 @@ namespace Game.Onboarding
                 _strongHintShown = true;
                 _boardView.SetTutorialMove(_move, true);
                 ToastUI.Show(UXCopy.TutorialFirstMove, 2.3f);
-                GameAudioController.Ensure().Play(AudioEvent.TutorialHint);
+                GameAudioController.Ensure().Play(AudioEvent.HintRepeat);
                 GameTelemetry.Track("tutorial.hint_shown", GameTelemetry.Props(
                     "level_id", LevelId(),
                     "from", _move.A.ToString(),

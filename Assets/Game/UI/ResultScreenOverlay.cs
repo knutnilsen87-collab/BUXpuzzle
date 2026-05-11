@@ -1,4 +1,5 @@
 using System;
+using Game.Audio;
 using Game.Progression;
 using UnityEngine;
 
@@ -45,11 +46,13 @@ namespace Game.UI
             _replay = replay;
             _share = share;
             gameObject.SetActive(true);
+            GameAudioController.Ensure().Play(AudioEvent.UIOverlayOpen);
         }
 
         public void Hide()
         {
             gameObject.SetActive(false);
+            GameAudioController.Ensure().Play(AudioEvent.UIOverlayClose, 0.75f);
         }
 
         private void OnGUI()
@@ -97,16 +100,19 @@ namespace Game.UI
             float buttonW = (inner - 20f) / 3f;
             if (GUI.Button(new Rect(x, y, buttonW, 44f), _session.Win ? "Neste level" : "Prøv igjen", _button))
             {
+                GameAudioController.Ensure().Play(AudioEvent.UIButtonTap);
                 if (_session.Win) _next?.Invoke(); else _replay?.Invoke();
             }
 
             if (GUI.Button(new Rect(x + buttonW + 10f, y, buttonW, 44f), "Spill igjen", _button))
             {
+                GameAudioController.Ensure().Play(AudioEvent.UIButtonTap);
                 _replay?.Invoke();
             }
 
             if (GUI.Button(new Rect(x + (buttonW + 10f) * 2f, y, buttonW, 44f), "Del", _button))
             {
+                GameAudioController.Ensure().Play(AudioEvent.UIButtonTap);
                 _share?.Invoke();
             }
         }

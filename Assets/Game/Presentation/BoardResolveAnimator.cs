@@ -23,14 +23,21 @@ namespace Game.Presentation
             }
 
             yield return AnimateAcceptedSwap(board, a, b);
+            if (trace.SpecialsActivated != null && trace.SpecialsActivated.Count > 0)
+            {
+                BoardJuiceController.Ensure().SpecialActivated(trace.SpecialsActivated.Count);
+            }
 
             foreach (var step in trace.Steps)
             {
                 BoardJuiceController.Ensure().MatchFound(step);
-                BoardJuiceController.Ensure().Cascade(step.Iteration);
+                if (trace.Steps.Count > 1 && step.Iteration > 1)
+                {
+                    BoardJuiceController.Ensure().Cascade(step.Iteration - 1);
+                }
                 yield return _tileJuice.PulseMatched(board, step);
 
-                BoardJuiceController.Ensure().Clear();
+                BoardJuiceController.Ensure().Clear(step.Cleared != null ? step.Cleared.Count : 0);
                 yield return _tileJuice.ClearMatched(board, step);
 
                 if (step.Drops.Count > 0)
@@ -48,6 +55,11 @@ namespace Game.Presentation
                 {
                     yield return new WaitForSeconds(0.10f);
                 }
+            }
+
+            if (trace.SpecialsCreated != null && trace.SpecialsCreated.Count > 0)
+            {
+                BoardJuiceController.Ensure().SpecialCreated();
             }
         }
 
@@ -82,6 +94,7 @@ namespace Game.Presentation
             var tiles = new TileView[step.Drops.Count];
             var starts = new Vector3[step.Drops.Count];
             var ends = new Vector3[step.Drops.Count];
+            int maxDropDistance = 1;
 
             for (int i = 0; i < step.Drops.Count; i++)
             {
@@ -90,7 +103,10 @@ namespace Game.Presentation
                 if (tiles[i] == null) continue;
                 starts[i] = tiles[i].transform.localPosition;
                 ends[i] = board.LocalPositionFor(drop.To.X, drop.To.Y);
+                maxDropDistance = Mathf.Max(maxDropDistance, Mathf.Abs(drop.From.Y - drop.To.Y));
             }
+
+            BoardJuiceController.Ensure().TileFall(maxDropDistance);
 
             while (t < duration)
             {
@@ -110,7 +126,7 @@ namespace Game.Presentation
             }
 
             board.ApplyDropVisualSlots(step.Drops);
-            BoardJuiceController.Ensure().DropLand();
+            BoardJuiceController.Ensure().DropLand(step.Drops.Count);
             yield return _tileJuice.Land(tiles);
             yield return new WaitForSeconds(0.08f);
         }

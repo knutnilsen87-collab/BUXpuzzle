@@ -4,19 +4,58 @@ namespace Game.Audio
     {
         TileSelect,
         TileDeselect,
-        SwapAccept,
-        SwapReject,
+
+        SwapValidStart,
+        SwapAcceptedSettle,
+        SwapInvalid,
+
         Match3,
         Match4,
         Match5,
-        Clear,
-        DropLand,
+
+        ClearSmall,
+        ClearMedium,
+        ClearLarge,
+
+        TileFallShort,
+        TileFallLong,
+        TileLandSingle,
+        TileLandCluster,
+
         Cascade1,
         Cascade2,
         Cascade3Plus,
+
         GoalProgress,
         LevelComplete,
-        ButtonTap,
-        TutorialHint
+        SessionFail,
+
+        UIButtonTap,
+        UIOverlayOpen,
+        UIOverlayClose,
+
+        TutorialHint,
+        HintRepeat,
+
+        SpecialCharge,
+        SpecialTrigger,
+        SpecialCreated,
+        SpecialCombine
+    }
+
+    public enum MusicTrack
+    {
+        RelaxedMenusEasyLevels,
+        MainGameplay,
+        DeeperFocusLaterLevels,
+        PuzzleCalmLoopA,
+        PuzzleFocusLoopB,
+        CascadeSparkleLayer,
+        LevelCompleteStinger
+    }
+
+    public enum AmbienceTrack
+    {
+        NatureLightMorning
     }
 }

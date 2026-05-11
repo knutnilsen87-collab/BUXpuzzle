@@ -1,4 +1,5 @@
 using UnityEngine;
+using Game.Audio;
 using Game.Core;
 using Game.Presentation;
 using Game.Presentation.Juice;
@@ -58,6 +59,7 @@ public sealed class GameRoot : MonoBehaviour
         _garden = GardenState.Load();
         _daily = new DailyChallengeService();
         _score.Reset();
+        StartAudioForLevel();
         GameTelemetry.Track("session.start", GameTelemetry.Props(
             "level_id", _level.LevelNumber,
             "board_width", Width,
@@ -231,6 +233,10 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         {
             BoardJuiceController.Ensure().LevelComplete();
         }
+        else
+        {
+            GameAudioController.Ensure().Play(AudioEvent.SessionFail);
+        }
 
         ResultScreenOverlay.Ensure().Show(session, results, StartNextLevel, ReplayLevel, ShareResult);
     }
@@ -297,6 +303,7 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         _objectives.Initialize(_level);
         _board = new BoardEngine(Width, Height, Seed, _level.BoardRows);
         ApplyLevelMechanics();
+        StartAudioForLevel();
         TryInitSceneWiring(true);
     }
 
@@ -306,6 +313,20 @@ Debug.Log("[AUTOPILOT_TRACE] BoardEngine initialized");
         Width = Mathf.Max(3, level.BoardWidth);
         Height = Mathf.Max(3, level.BoardHeight);
         Seed = level.Seed;
+    }
+
+    private void StartAudioForLevel()
+    {
+        var audio = GameAudioController.Ensure();
+        audio.PlayAmbience(AmbienceTrack.NatureLightMorning);
+        audio.PlayMusic(MusicTrackForLevel(_level.LevelNumber));
+    }
+
+    private static MusicTrack MusicTrackForLevel(int levelNumber)
+    {
+        if (levelNumber <= 3) return MusicTrack.RelaxedMenusEasyLevels;
+        if (levelNumber >= 10) return MusicTrack.DeeperFocusLaterLevels;
+        return MusicTrack.MainGameplay;
     }
 
     public void EndLevel(bool win, int secondsPlayed, int movesUsed, int goalsRemaining, bool smartMove)

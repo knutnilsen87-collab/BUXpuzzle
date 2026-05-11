@@ -1,15 +1,43 @@
+using System.Collections;
 using System.Collections.Generic;
 using Game.Settings;
 using UnityEngine;
+using UnityEngine.Audio;
 
 namespace Game.Audio
 {
     public sealed class GameAudioController : MonoBehaviour
     {
+        private const string ConfigResourcePath = "Audio/BUXPuzzleAudioConfig";
+
         private static GameAudioController _instance;
-        private readonly Dictionary<AudioEvent, AudioClip> _clips = new Dictionary<AudioEvent, AudioClip>();
-        private AudioSource _source;
-        private float _lastDropLandAt = -10f;
+
+        [SerializeField] private BUXPuzzleAudioConfig config;
+        [SerializeField] private AudioMixerGroup musicGroup;
+        [SerializeField] private AudioMixerGroup ambienceGroup;
+        [SerializeField] private AudioMixerGroup boardSfxGroup;
+        [SerializeField] private AudioMixerGroup uiSfxGroup;
+        [SerializeField] private AudioMixerGroup rewardSfxGroup;
+        [SerializeField] private AudioMixerGroup invalidSfxGroup;
+
+        private readonly Dictionary<AudioEvent, float> _lastPlayedAt = new Dictionary<AudioEvent, float>();
+        private readonly Dictionary<AudioEvent, int> _activeVoices = new Dictionary<AudioEvent, int>();
+        private readonly HashSet<string> _warnedMissing = new HashSet<string>();
+
+        private AudioSource _boardSfx;
+        private AudioSource _uiSfx;
+        private AudioSource _rewardSfx;
+        private AudioSource _invalidSfx;
+        private AudioSource _musicA;
+        private AudioSource _musicB;
+        private AudioSource _ambience;
+        private AudioSource _activeMusic;
+        private Coroutine _musicFade;
+        private Coroutine _ambienceFade;
+        private MusicTrack? _currentMusic;
+        private AmbienceTrack? _currentAmbience;
+        private float _currentMusicBaseVolume;
+        private float _currentAmbienceBaseVolume;
 
         public static GameAudioController Ensure()
         {
@@ -37,125 +65,296 @@ namespace Game.Audio
 
             _instance = this;
             DontDestroyOnLoad(gameObject);
-            _source = GetComponent<AudioSource>();
-            if (_source == null) _source = gameObject.AddComponent<AudioSource>();
-            _source.playOnAwake = false;
-            _source.spatialBlend = 0f;
-            _source.volume = 0.78f;
-            BuildClips();
+            LoadConfig();
+            EnsureSources();
+            ApplyVolumes();
         }
 
-        public void Play(AudioEvent evt, float volume = 1f)
+        private void Update()
         {
-            if (!GameSettings.SfxEnabled || _source == null) return;
+            ApplyVolumes();
+        }
 
-            if (evt == AudioEvent.DropLand)
+        public void Play(AudioEvent audioEvent)
+        {
+            Play(audioEvent, 1f);
+        }
+
+        public void Play(AudioEvent audioEvent, float volumeMultiplier)
+        {
+            if (!GameSettings.SfxEnabled) return;
+            LoadConfig();
+            EnsureSources();
+
+            if (config == null || !config.TryGet(audioEvent, out var binding) || binding == null)
             {
-                if (Time.unscaledTime - _lastDropLandAt < 0.10f) return;
-                _lastDropLandAt = Time.unscaledTime;
+                WarnMissing("AudioEvent mapping missing: " + audioEvent);
+                return;
             }
 
-            if (!_clips.TryGetValue(evt, out var clip) || clip == null) return;
-
-            float jitter = Random.Range(0.96f, 1.04f);
-            _source.pitch = PitchFor(evt) * jitter;
-            _source.PlayOneShot(clip, Mathf.Clamp01(volume * VolumeFor(evt)));
-        }
-
-        private void BuildClips()
-        {
-            _clips[AudioEvent.TileSelect] = Tone("tile_select", 620f, 0.045f, 0.10f);
-            _clips[AudioEvent.TileDeselect] = Tone("tile_deselect", 420f, 0.035f, 0.08f);
-            _clips[AudioEvent.SwapAccept] = Tone("swap_accept", 520f, 0.070f, 0.12f);
-            _clips[AudioEvent.SwapReject] = Tone("swap_reject", 220f, 0.090f, 0.11f);
-            _clips[AudioEvent.Match3] = Chime("match_3", 520f, 660f, 0.135f, 0.16f);
-            _clips[AudioEvent.Match4] = Chime("match_4", 560f, 740f, 0.150f, 0.18f);
-            _clips[AudioEvent.Match5] = Chime("match_5", 620f, 840f, 0.175f, 0.20f);
-            _clips[AudioEvent.Clear] = Noise("clear", 0.16f, 0.07f);
-            _clips[AudioEvent.DropLand] = Tone("drop_land", 170f, 0.055f, 0.08f);
-            _clips[AudioEvent.Cascade1] = Chime("cascade_1", 520f, 700f, 0.13f, 0.14f);
-            _clips[AudioEvent.Cascade2] = Chime("cascade_2", 620f, 830f, 0.15f, 0.16f);
-            _clips[AudioEvent.Cascade3Plus] = Chime("cascade_3_plus", 740f, 960f, 0.18f, 0.18f);
-            _clips[AudioEvent.GoalProgress] = Tone("goal_progress", 760f, 0.075f, 0.10f);
-            _clips[AudioEvent.LevelComplete] = Chime("level_complete", 520f, 880f, 0.45f, 0.24f);
-            _clips[AudioEvent.ButtonTap] = Tone("button_tap", 540f, 0.045f, 0.08f);
-            _clips[AudioEvent.TutorialHint] = Chime("tutorial_hint", 480f, 640f, 0.20f, 0.12f);
-        }
-
-        private static float VolumeFor(AudioEvent evt)
-        {
-            switch (evt)
+            if (binding.Clip == null)
             {
-                case AudioEvent.SwapReject: return 0.42f;
-                case AudioEvent.DropLand: return 0.38f;
-                case AudioEvent.Clear: return 0.34f;
-                case AudioEvent.LevelComplete: return 0.65f;
-                default: return 0.48f;
+                WarnMissing("AudioEvent clip missing: " + audioEvent);
+                return;
+            }
+
+            float now = Time.unscaledTime;
+            if (_lastPlayedAt.TryGetValue(audioEvent, out float last) && now - last < Mathf.Max(0f, binding.CooldownSeconds))
+            {
+                return;
+            }
+
+            int active = _activeVoices.TryGetValue(audioEvent, out int count) ? count : 0;
+            int maxVoices = Mathf.Max(1, binding.MaxSimultaneousVoices);
+            if (active >= maxVoices) return;
+
+            var source = SourceFor(binding.Route);
+            source.pitch = Random.Range(Mathf.Min(binding.PitchMin, binding.PitchMax), Mathf.Max(binding.PitchMin, binding.PitchMax));
+            source.PlayOneShot(binding.Clip, Mathf.Clamp01(volumeMultiplier * binding.Volume * GameSettings.SfxVolume));
+
+            _lastPlayedAt[audioEvent] = now;
+            _activeVoices[audioEvent] = active + 1;
+            StartCoroutine(ReleaseVoice(audioEvent, binding.Clip.length));
+        }
+
+        public void PlayMusic(MusicTrack track, float fadeSeconds = 0.75f)
+        {
+            LoadConfig();
+            EnsureSources();
+
+            if (!GameSettings.MusicEnabled)
+            {
+                StopMusic(fadeSeconds);
+                return;
+            }
+
+            if (_currentMusic.HasValue && _currentMusic.Value == track && _activeMusic != null && _activeMusic.isPlaying)
+            {
+                return;
+            }
+
+            if (config == null || !config.TryGet(track, out var binding) || binding == null || binding.Clip == null)
+            {
+                WarnMissing("MusicTrack clip missing: " + track);
+                return;
+            }
+
+            if (_musicFade != null) StopCoroutine(_musicFade);
+
+            var from = _activeMusic;
+            var to = _activeMusic == _musicA ? _musicB : _musicA;
+            to.clip = binding.Clip;
+            to.loop = binding.Loop;
+            to.volume = 0f;
+            to.Play();
+            _activeMusic = to;
+            _currentMusic = track;
+            _currentMusicBaseVolume = binding.Volume;
+            _musicFade = StartCoroutine(FadeMusic(from, to, binding.Volume, fadeSeconds));
+        }
+
+        public void StopMusic(float fadeSeconds = 0.75f)
+        {
+            EnsureSources();
+            if (_musicFade != null) StopCoroutine(_musicFade);
+            _musicFade = StartCoroutine(FadeOutAndStop(_activeMusic, fadeSeconds));
+            _currentMusic = null;
+        }
+
+        public void PlayAmbience(AmbienceTrack track, float fadeSeconds = 1f)
+        {
+            LoadConfig();
+            EnsureSources();
+
+            if (!GameSettings.AmbienceEnabled)
+            {
+                StopAmbience(fadeSeconds);
+                return;
+            }
+
+            if (_currentAmbience.HasValue && _currentAmbience.Value == track && _ambience.isPlaying)
+            {
+                return;
+            }
+
+            if (config == null || !config.TryGet(track, out var binding) || binding == null || binding.Clip == null)
+            {
+                WarnMissing("AmbienceTrack clip missing: " + track);
+                return;
+            }
+
+            if (_ambienceFade != null) StopCoroutine(_ambienceFade);
+            _ambience.clip = binding.Clip;
+            _ambience.loop = binding.Loop;
+            _ambience.volume = 0f;
+            _ambience.Play();
+            _currentAmbience = track;
+            _currentAmbienceBaseVolume = binding.Volume;
+            _ambienceFade = StartCoroutine(FadeSource(_ambience, binding.Volume * GameSettings.AmbienceVolume, fadeSeconds));
+        }
+
+        public void StopAmbience(float fadeSeconds = 1f)
+        {
+            EnsureSources();
+            if (_ambienceFade != null) StopCoroutine(_ambienceFade);
+            _ambienceFade = StartCoroutine(FadeOutAndStop(_ambience, fadeSeconds));
+            _currentAmbience = null;
+        }
+
+        public void SetSfxVolume(float value)
+        {
+            GameSettings.SfxVolume = value;
+            ApplyVolumes();
+        }
+
+        public void SetMusicVolume(float value)
+        {
+            GameSettings.MusicVolume = value;
+            ApplyVolumes();
+        }
+
+        public void SetAmbienceVolume(float value)
+        {
+            GameSettings.AmbienceVolume = value;
+            ApplyVolumes();
+        }
+
+        private void LoadConfig()
+        {
+            if (config == null)
+            {
+                config = Resources.Load<BUXPuzzleAudioConfig>(ConfigResourcePath);
             }
         }
 
-        private static float PitchFor(AudioEvent evt)
+        private void EnsureSources()
         {
-            switch (evt)
+            _boardSfx = EnsureSource("BoardSFXSource", boardSfxGroup, _boardSfx);
+            _uiSfx = EnsureSource("UISFXSource", uiSfxGroup, _uiSfx);
+            _rewardSfx = EnsureSource("RewardSFXSource", rewardSfxGroup, _rewardSfx);
+            _invalidSfx = EnsureSource("InvalidSFXSource", invalidSfxGroup, _invalidSfx);
+            _musicA = EnsureSource("MusicSourceA", musicGroup, _musicA);
+            _musicB = EnsureSource("MusicSourceB", musicGroup, _musicB);
+            _ambience = EnsureSource("AmbienceSource", ambienceGroup, _ambience);
+            if (_activeMusic == null) _activeMusic = _musicA;
+        }
+
+        private AudioSource EnsureSource(string sourceName, AudioMixerGroup group, AudioSource existing)
+        {
+            if (existing != null) return existing;
+
+            var child = transform.Find(sourceName);
+            if (child == null)
             {
-                case AudioEvent.Cascade2: return 1.04f;
-                case AudioEvent.Cascade3Plus: return 1.08f;
-                case AudioEvent.SwapReject: return 0.92f;
-                default: return 1f;
+                var go = new GameObject(sourceName);
+                child = go.transform;
+                child.SetParent(transform, false);
+            }
+
+            var source = child.GetComponent<AudioSource>();
+            if (source == null) source = child.gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.spatialBlend = 0f;
+            source.outputAudioMixerGroup = group;
+            return source;
+        }
+
+        private AudioSource SourceFor(AudioRoute route)
+        {
+            switch (route)
+            {
+                case AudioRoute.UISFX: return _uiSfx;
+                case AudioRoute.RewardSFX: return _rewardSfx;
+                case AudioRoute.InvalidSFX: return _invalidSfx;
+                default: return _boardSfx;
             }
         }
 
-        private static AudioClip Tone(string name, float hz, float seconds, float attack)
+        private IEnumerator ReleaseVoice(AudioEvent audioEvent, float seconds)
         {
-            return Build(name, seconds, i =>
-            {
-                float t = i / 44100f;
-                float env = Envelope(t, seconds, attack);
-                return Mathf.Sin(t * hz * Mathf.PI * 2f) * env;
-            });
+            yield return new WaitForSecondsRealtime(Mathf.Max(0.02f, seconds));
+            int active = _activeVoices.TryGetValue(audioEvent, out int count) ? count : 0;
+            if (active <= 1) _activeVoices.Remove(audioEvent);
+            else _activeVoices[audioEvent] = active - 1;
         }
 
-        private static AudioClip Chime(string name, float lowHz, float highHz, float seconds, float attack)
+        private IEnumerator FadeMusic(AudioSource from, AudioSource to, float targetVolume, float seconds)
         {
-            return Build(name, seconds, i =>
-            {
-                float t = i / 44100f;
-                float env = Envelope(t, seconds, attack);
-                float a = Mathf.Sin(t * lowHz * Mathf.PI * 2f);
-                float b = Mathf.Sin(t * highHz * Mathf.PI * 2f) * 0.65f;
-                return (a + b) * 0.5f * env;
-            });
-        }
+            float fromStart = from != null ? from.volume : 0f;
+            float toTarget = targetVolume * GameSettings.MusicVolume;
+            float duration = Mathf.Max(0.01f, seconds);
+            float t = 0f;
 
-        private static AudioClip Noise(string name, float seconds, float attack)
-        {
-            return Build(name, seconds, i =>
+            while (t < duration)
             {
-                float t = i / 44100f;
-                float env = Envelope(t, seconds, attack);
-                return Random.Range(-1f, 1f) * env * 0.38f;
-            });
-        }
-
-        private static AudioClip Build(string name, float seconds, System.Func<int, float> sample)
-        {
-            int count = Mathf.Max(1, Mathf.RoundToInt(44100f * seconds));
-            var data = new float[count];
-            for (int i = 0; i < count; i++)
-            {
-                data[i] = Mathf.Clamp(sample(i), -0.65f, 0.65f);
+                t += Time.unscaledDeltaTime;
+                float k = Mathf.Clamp01(t / duration);
+                if (from != null) from.volume = Mathf.Lerp(fromStart, 0f, k);
+                if (to != null) to.volume = Mathf.Lerp(0f, toTarget, k);
+                yield return null;
             }
 
-            var clip = AudioClip.Create(name, count, 1, 44100, false);
-            clip.SetData(data, 0);
-            return clip;
+            if (from != null) from.Stop();
+            if (to != null) to.volume = toTarget;
+            _musicFade = null;
         }
 
-        private static float Envelope(float t, float seconds, float attack)
+        private IEnumerator FadeSource(AudioSource source, float targetVolume, float seconds)
         {
-            float a = Mathf.Clamp01(t / Mathf.Max(0.001f, attack));
-            float r = Mathf.Clamp01((seconds - t) / Mathf.Max(0.001f, seconds * 0.72f));
-            return Mathf.SmoothStep(0f, 1f, a) * Mathf.SmoothStep(0f, 1f, r);
+            if (source == null) yield break;
+
+            float start = source.volume;
+            float duration = Mathf.Max(0.01f, seconds);
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                source.volume = Mathf.Lerp(start, targetVolume, Mathf.Clamp01(t / duration));
+                yield return null;
+            }
+
+            source.volume = targetVolume;
+            if (source == _ambience) _ambienceFade = null;
+        }
+
+        private IEnumerator FadeOutAndStop(AudioSource source, float seconds)
+        {
+            if (source == null) yield break;
+
+            float start = source.volume;
+            float duration = Mathf.Max(0.01f, seconds);
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                source.volume = Mathf.Lerp(start, 0f, Mathf.Clamp01(t / duration));
+                yield return null;
+            }
+
+            source.Stop();
+            if (source == _activeMusic) _musicFade = null;
+            if (source == _ambience) _ambienceFade = null;
+        }
+
+        private void ApplyVolumes()
+        {
+            if (_activeMusic != null && _activeMusic.isPlaying && _musicFade == null)
+            {
+                _activeMusic.volume = GameSettings.MusicEnabled ? _currentMusicBaseVolume * GameSettings.MusicVolume : 0f;
+            }
+
+            if (_ambience != null && _ambience.isPlaying && _ambienceFade == null)
+            {
+                _ambience.volume = GameSettings.AmbienceEnabled ? _currentAmbienceBaseVolume * GameSettings.AmbienceVolume : 0f;
+            }
+        }
+
+        private void WarnMissing(string message)
+        {
+            if (!_warnedMissing.Add(message)) return;
+#if UNITY_EDITOR
+            Debug.LogWarning("[GameAudioController] " + message);
+#endif
         }
     }
 }

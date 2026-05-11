@@ -134,6 +134,7 @@ namespace Game.Presentation
 
             if (ok)
             {
+                GameAudioController.Ensure().Play(AudioEvent.SwapValidStart);
                 var hud = FindFirstObjectByType<Game.UI.SimpleHud>();
                 if (hud != null)
                 {
@@ -215,7 +216,6 @@ namespace Game.Presentation
 
             yield return _resolveAnimator.Play(this, a, b, trace);
             DrawOrRedrawFromEngine();
-            GameAudioController.Ensure().Play(AudioEvent.DropLand, 0.55f);
             _isResolving = false;
             SwapAccepted?.Invoke(move, summary, trace, inputType);
         }

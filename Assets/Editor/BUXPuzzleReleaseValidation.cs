@@ -192,21 +192,54 @@ public static class BUXPuzzleReleaseValidation
     {
         string[] clips =
         {
-            "board_settle.wav",
-            "cascade_roll.wav",
-            "combo_bloom.wav",
-            "match_pop.wav",
-            "spawn_soft.wav",
-            "swap_invalid.wav",
-            "swap_soft.wav"
+            "amb_nature_light_morning_loop.mp3",
+            "mus_background_deeper_focus_later_levels.mp3",
+            "mus_background_main_gameplay.mp3",
+            "mus_background_relaxed_menus_easy_levels.mp3",
+            "mus_layer_cascade_sparkle.mp3",
+            "mus_puzzle_calm_loop_a.mp3",
+            "mus_puzzle_focus_loop_b.mp3",
+            "mus_stinger_level_complete.mp3",
+            "sfx_cascade_1_seed_glow.mp3",
+            "sfx_cascade_2_leaf_harmony.mp3",
+            "sfx_cascade_3plus_sunbeam.mp3",
+            "sfx_clear_large_light_ring.mp3",
+            "sfx_clear_medium_dew_sparkle.mp3",
+            "sfx_clear_small_pollen.mp3",
+            "sfx_goal_progress_warm_tick.mp3",
+            "sfx_hint_repeat_subtle.mp3",
+            "sfx_hint_soft_firefly.mp3",
+            "sfx_level_complete_morning_bloom.mp3",
+            "sfx_match3_dew_pop.mp3",
+            "sfx_match4_petal_chime.mp3",
+            "sfx_match5_light_bloom.mp3",
+            "sfx_session_fail_sunset_soft.mp3",
+            "sfx_session_fail_sunset_soft_alt.mp3",
+            "sfx_special_charge_dewline.mp3",
+            "sfx_special_combine_light_merge.mp3",
+            "sfx_special_created_seed_bloom.mp3",
+            "sfx_special_trigger_lightwave.mp3",
+            "sfx_swap_accept_warm_click.mp3",
+            "sfx_swap_invalid_gentle_wood.mp3",
+            "sfx_swap_valid_silk_slide.mp3",
+            "sfx_tile_deselect_soft_release.mp3",
+            "sfx_tile_fall_long_leaf_sweep.mp3",
+            "sfx_tile_fall_short_soft_air.mp3",
+            "sfx_tile_land_cluster_moss.mp3",
+            "sfx_tile_land_pebble_soft.mp3",
+            "sfx_tile_select_leaf_tap.mp3",
+            "sfx_ui_button_tap_woodglass.mp3",
+            "sfx_ui_overlay_close_air.mp3",
+            "sfx_ui_overlay_open_air.mp3"
         };
 
         foreach (var clip in clips)
         {
-            string path = "Assets/Resources/Audio/" + clip;
+            string path = "Assets/Audio/" + clip;
             Require(File.Exists(path), "Audio clip exists: " + clip, "Missing audio clip: " + clip);
         }
 
+        Require(File.Exists(Game.EditorTools.BUXPuzzleAudioConfigBuilder.ConfigPath), "BUXPuzzle audio config exists", "BUXPuzzle audio config is missing.");
         Require(File.Exists("Assets/Game/Presentation/Audio/FBL_AudioEventMap.json"), "Audio event map exists", "Audio event map is missing.");
     }
 

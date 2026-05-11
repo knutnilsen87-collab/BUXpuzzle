@@ -55,12 +55,12 @@ namespace Game.Presentation.Juice
 
         public void SwapAccepted()
         {
-            GameAudioController.Ensure().Play(AudioEvent.SwapAccept);
+            GameAudioController.Ensure().Play(AudioEvent.SwapAcceptedSettle);
         }
 
         public void SwapRejected()
         {
-            GameAudioController.Ensure().Play(AudioEvent.SwapReject);
+            GameAudioController.Ensure().Play(AudioEvent.SwapInvalid);
             HapticsController.Warning();
         }
 
@@ -71,25 +71,28 @@ namespace Game.Presentation.Juice
             GameAudioController.Ensure().Play(evt);
         }
 
-        public void Clear()
+        public void Clear(int clearedTileCount)
         {
-            GameAudioController.Ensure().Play(AudioEvent.Clear, 0.85f);
+            var evt = clearedTileCount <= 4 ? AudioEvent.ClearSmall : (clearedTileCount <= 8 ? AudioEvent.ClearMedium : AudioEvent.ClearLarge);
+            GameAudioController.Ensure().Play(evt, 0.85f);
         }
 
-        public void DropLand()
+        public void TileFall(int maxDropDistance)
         {
-            GameAudioController.Ensure().Play(AudioEvent.DropLand, 0.8f);
+            GameAudioController.Ensure().Play(maxDropDistance >= 3 ? AudioEvent.TileFallLong : AudioEvent.TileFallShort, 0.7f);
         }
 
-        public void Cascade(int iteration)
+        public void DropLand(int landingTileCount)
         {
-            if (iteration <= 1)
-            {
-                return;
-            }
+            GameAudioController.Ensure().Play(landingTileCount <= 2 ? AudioEvent.TileLandSingle : AudioEvent.TileLandCluster, 0.8f);
+        }
 
-            GameAudioController.Ensure().Play(iteration == 2 ? AudioEvent.Cascade2 : AudioEvent.Cascade3Plus, 0.78f);
-            if (_rewardPresenter != null) _rewardPresenter.ShowCascade(iteration);
+        public void Cascade(int cascadeIndex)
+        {
+            if (cascadeIndex <= 0) return;
+            var evt = cascadeIndex == 1 ? AudioEvent.Cascade1 : (cascadeIndex == 2 ? AudioEvent.Cascade2 : AudioEvent.Cascade3Plus);
+            GameAudioController.Ensure().Play(evt, 0.78f);
+            if (_rewardPresenter != null) _rewardPresenter.ShowCascade(cascadeIndex + 1);
         }
 
         public void LevelComplete()
@@ -97,6 +100,17 @@ namespace Game.Presentation.Juice
             GameAudioController.Ensure().Play(AudioEvent.LevelComplete);
             HapticsController.Success();
             if (_screenPulse != null) _screenPulse.Pulse(0.38f);
+        }
+
+        public void SpecialActivated(int activatedCount)
+        {
+            if (activatedCount > 1) GameAudioController.Ensure().Play(AudioEvent.SpecialCombine);
+            else if (activatedCount == 1) GameAudioController.Ensure().Play(AudioEvent.SpecialTrigger);
+        }
+
+        public void SpecialCreated()
+        {
+            GameAudioController.Ensure().Play(AudioEvent.SpecialCreated);
         }
     }
 }
