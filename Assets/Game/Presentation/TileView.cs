@@ -11,6 +11,7 @@ namespace Game.Presentation
         public int Y { get; private set; }
         public int Type { get; private set; }
         public TileState State { get; private set; }
+        public TileSpecial Special { get; private set; }
         public CellBlockerType Blocker { get; private set; }
 
         private Transform _visualRoot;
@@ -72,6 +73,12 @@ namespace Game.Presentation
         public void SetState(TileState state)
         {
             State = state;
+            ApplyVisuals();
+        }
+
+        public void SetSpecial(TileSpecial special)
+        {
+            Special = special;
             ApplyVisuals();
         }
 
@@ -170,7 +177,7 @@ namespace Game.Presentation
 
             if (_specialOverlayRenderer != null)
             {
-                _specialOverlayRenderer.sprite = _tileSet != null ? _tileSet.SpecialOverlay(State) : null;
+                _specialOverlayRenderer.sprite = _tileSet != null ? _tileSet.SpecialOverlay(State, Special) : null;
                 _specialOverlayRenderer.color = _clearing ? new Color(1f, 1f, 1f, 0.22f) : Color.white;
                 FitRendererToCell(_specialOverlayRenderer, visualFit);
             }

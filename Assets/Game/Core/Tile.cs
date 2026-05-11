@@ -16,6 +16,7 @@ namespace Game.Core {
   public struct Tile {
     public TileType Type;
     public TileState State;
+    public TileSpecial Special;
     // Fx 1 is a DewDrop/drop object carried by the tile layer.
     public byte Fx;
   }

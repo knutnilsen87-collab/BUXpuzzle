@@ -33,10 +33,15 @@ namespace Game.Content
 
         public Sprite SpecialOverlay(TileState state)
         {
+            return SpecialOverlay(state, TileSpecial.None);
+        }
+
+        public Sprite SpecialOverlay(TileState state, TileSpecial special)
+        {
             switch (state)
             {
                 case TileState.Line:
-                    return LineHorizontalOverlay;
+                    return special == TileSpecial.LineVertical ? LineVerticalOverlay : LineHorizontalOverlay;
                 case TileState.Burst:
                     return BloomBombOverlay;
                 case TileState.ColorBomb:

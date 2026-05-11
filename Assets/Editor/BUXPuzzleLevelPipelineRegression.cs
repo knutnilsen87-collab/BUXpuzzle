@@ -18,6 +18,7 @@ public static class BUXPuzzleLevelPipelineRegression
         CheckRepository(failures, passed);
         CheckValidator(failures, passed);
         CheckBoardDeterminism(failures, passed);
+        CheckSpecialOrientation(failures, passed);
 
         Directory.CreateDirectory(Path.GetDirectoryName(ReportPath) ?? "Logs");
         File.WriteAllText(ReportPath, JsonUtility.ToJson(new Report
@@ -75,6 +76,45 @@ public static class BUXPuzzleLevelPipelineRegression
 
         var masked = new BoardEngine(5, 5, 1234, new[] { ".....", ".###.", ".M.V.", ".###.", "....." });
         Require(!masked.IsCellActive(1, 1) && masked.GetCell(1, 2).Blocker == CellBlockerType.Moss, passed, failures, "Board mask and cell blockers initialize.");
+    }
+
+    private static void CheckSpecialOrientation(List<string> failures, List<string> passed)
+    {
+        var horizontal = new BoardEngine(5, 5, 1001);
+        horizontal.Set(2, 2, new Tile { Type = TileType.A, State = TileState.Line, Special = TileSpecial.LineHorizontal });
+        horizontal.Set(2, 3, new Tile { Type = TileType.B, State = TileState.Normal });
+        Require(horizontal.TrySwapAndResolveWithTrace(2, 2, 2, 3, out var horizontalTrace), passed, failures, "Horizontal line special activates on swap.");
+        Require(TraceClearsRow(horizontalTrace, 2) && !TraceClearsColumn(horizontalTrace, 2), passed, failures, "Horizontal line special clears its row only.");
+
+        var vertical = new BoardEngine(5, 5, 1002);
+        vertical.Set(2, 2, new Tile { Type = TileType.A, State = TileState.Line, Special = TileSpecial.LineVertical });
+        vertical.Set(3, 2, new Tile { Type = TileType.B, State = TileState.Normal });
+        Require(vertical.TrySwapAndResolveWithTrace(2, 2, 3, 2, out var verticalTrace), passed, failures, "Vertical line special activates on swap.");
+        Require(TraceClearsColumn(verticalTrace, 2) && !TraceClearsRow(verticalTrace, 2), passed, failures, "Vertical line special clears its column only.");
+    }
+
+    private static bool TraceClearsRow(ResolveTrace trace, int y)
+    {
+        if (trace == null || trace.Steps.Count == 0) return false;
+        int count = 0;
+        foreach (var coord in trace.Steps[0].Cleared)
+        {
+            if (coord.Y == y) count++;
+        }
+
+        return count >= 5;
+    }
+
+    private static bool TraceClearsColumn(ResolveTrace trace, int x)
+    {
+        if (trace == null || trace.Steps.Count == 0) return false;
+        int count = 0;
+        foreach (var coord in trace.Steps[0].Cleared)
+        {
+            if (coord.X == x) count++;
+        }
+
+        return count >= 5;
     }
 
     private static string Snapshot(BoardEngine board)

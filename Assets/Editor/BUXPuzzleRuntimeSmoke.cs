@@ -148,17 +148,27 @@ public static class BUXPuzzleRuntimeSmoke
         foreach (var tile in tiles)
         {
             if (tile == null) continue;
-            if (HasSprite(tile.transform.Find("TileBase")) || HasSprite(tile.transform.Find("TileSymbol"))) count++;
+            if (HasVisibleTileSprite(tile)) count++;
         }
 
         return count;
     }
 
-    private static bool HasSprite(Transform child)
+    private static bool HasVisibleTileSprite(TileView tile)
     {
-        if (child == null) return false;
-        var renderer = child.GetComponent<SpriteRenderer>();
-        return renderer != null && renderer.sprite != null;
+        var renderers = tile.GetComponentsInChildren<SpriteRenderer>(true);
+        foreach (var renderer in renderers)
+        {
+            if (renderer == null || renderer.sprite == null) continue;
+            if (renderer.name == "TileBase" ||
+                renderer.name == "TileSymbol" ||
+                renderer.name == "SpecialOverlay")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool AreAdjacent(TileView a, TileView b)

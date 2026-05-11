@@ -294,6 +294,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Presentation::Game.Presentation.BoardView
   natureLightTilePrefab: {fileID: 103739489664222282, guid: db3b8d5a98ada1a4496e232d75e09e00, type: 3}
   tileSetConfig: {fileID: 11400000, guid: 1057abda12084e6e83e7e2eddd0b9489, type: 2}
+  tileVisualScale: 1
   Width: 8
   Height: 8
   CellSize: 1.1

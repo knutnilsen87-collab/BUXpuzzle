@@ -23,6 +23,7 @@ namespace Game.Core
     {
         public BoardCoord Coord;
         public TileState State;
+        public TileSpecial Special;
     }
 
     [Serializable]
@@ -30,6 +31,7 @@ namespace Game.Core
     {
         public BoardCoord Coord;
         public TileState State;
+        public TileSpecial Special;
     }
 
     [Serializable]

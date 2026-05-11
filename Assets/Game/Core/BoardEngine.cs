@@ -184,7 +184,7 @@ namespace Game.Core
                 return false;
             }
 
-            CreateSpecialFromLargeMatch(x1, y1, summary.clearedTiles, trace);
+            CreateSpecialFromLargeMatch(x1, y1, x2, y2, summary.clearedTiles, trace);
 
             if (!HasAnyValidMove())
             {
@@ -335,6 +335,7 @@ namespace Game.Core
             {
                 Type = (TileType)_rng.Next(0, 6),
                 State = TileState.Normal,
+                Special = TileSpecial.None,
                 Fx = 0
             };
         }
@@ -394,6 +395,7 @@ namespace Game.Core
                 }
 
                 _tiles[i].State = TileState.Blocker;
+                _tiles[i].Special = TileSpecial.None;
             }
         }
 
@@ -546,7 +548,7 @@ namespace Game.Core
             }
         }
 
-        private void CreateSpecialFromLargeMatch(int x, int y, int clearedTiles, ResolveTrace trace)
+        private void CreateSpecialFromLargeMatch(int x, int y, int swappedX, int swappedY, int clearedTiles, ResolveTrace trace)
         {
             if (!IsInBounds(x, y) || clearedTiles < 4) return;
             if (!CellCanHoldTile(y * Width + x)) return;
@@ -554,15 +556,28 @@ namespace Game.Core
             var tile = Get(x, y);
             if (!IsMatchable(tile.State)) return;
 
-            if (clearedTiles >= 7) tile.State = TileState.ColorBomb;
-            else if (clearedTiles >= 5) tile.State = TileState.Burst;
-            else tile.State = TileState.Line;
+            if (clearedTiles >= 7)
+            {
+                tile.State = TileState.ColorBomb;
+                tile.Special = TileSpecial.ColorClear;
+            }
+            else if (clearedTiles >= 5)
+            {
+                tile.State = TileState.Burst;
+                tile.Special = TileSpecial.Burst;
+            }
+            else
+            {
+                tile.State = TileState.Line;
+                tile.Special = y != swappedY ? TileSpecial.LineVertical : TileSpecial.LineHorizontal;
+            }
 
             Set(x, y, tile);
             trace?.SpecialsCreated.Add(new SpecialCreatedEvent
             {
                 Coord = new BoardCoord(x, y),
-                State = tile.State
+                State = tile.State,
+                Special = tile.Special
             });
         }
 
@@ -571,8 +586,8 @@ namespace Game.Core
             var clear = new HashSet<int>();
             AddSpecialClear(x1, y1, a, b.Type, clear);
             AddSpecialClear(x2, y2, b, a.Type, clear);
-            if (IsSpecial(a.State)) trace?.SpecialsActivated.Add(new SpecialActivatedEvent { Coord = new BoardCoord(x1, y1), State = a.State });
-            if (IsSpecial(b.State)) trace?.SpecialsActivated.Add(new SpecialActivatedEvent { Coord = new BoardCoord(x2, y2), State = b.State });
+            if (IsSpecial(a.State)) trace?.SpecialsActivated.Add(new SpecialActivatedEvent { Coord = new BoardCoord(x1, y1), State = a.State, Special = ResolveSpecial(a) });
+            if (IsSpecial(b.State)) trace?.SpecialsActivated.Add(new SpecialActivatedEvent { Coord = new BoardCoord(x2, y2), State = b.State, Special = ResolveSpecial(b) });
 
             if (clear.Count == 0)
             {
@@ -616,8 +631,16 @@ namespace Game.Core
 
             if (tile.State == TileState.Line)
             {
-                for (int cx = 0; cx < Width; cx++) AddClearIfPassable(cx, y, clear);
-                for (int cy = 0; cy < Height; cy++) AddClearIfPassable(x, cy, clear);
+                var special = ResolveSpecial(tile);
+                if (special == TileSpecial.LineVertical)
+                {
+                    for (int cy = 0; cy < Height; cy++) AddClearIfPassable(x, cy, clear);
+                }
+                else
+                {
+                    for (int cx = 0; cx < Width; cx++) AddClearIfPassable(cx, y, clear);
+                }
+
                 return;
             }
 
@@ -673,6 +696,7 @@ namespace Game.Core
                 step?.DropObjectsCollected.Add(evt);
                 var tile = _tiles[i];
                 tile.State = TileState.Blocker;
+                tile.Special = TileSpecial.None;
                 tile.Fx = 0;
                 _tiles[i] = tile;
             }
@@ -691,6 +715,7 @@ namespace Game.Core
             if (blocker == CellBlockerType.None) return;
             var tile = _tiles[index];
             tile.State = StateForBlocker(blocker);
+            tile.Special = TileSpecial.None;
             _tiles[index] = tile;
         }
 
@@ -702,8 +727,22 @@ namespace Game.Core
             {
                 Type = (TileType)_rng.Next(0, 6),
                 State = StateForBlocker(cell.Blocker),
+                Special = TileSpecial.None,
                 Fx = 0
             };
+        }
+
+        private static TileSpecial ResolveSpecial(Tile tile)
+        {
+            if (tile.Special != TileSpecial.None) return tile.Special;
+
+            switch (tile.State)
+            {
+                case TileState.Line: return TileSpecial.LineHorizontal;
+                case TileState.Burst: return TileSpecial.Burst;
+                case TileState.ColorBomb: return TileSpecial.ColorClear;
+                default: return TileSpecial.None;
+            }
         }
 
         private static TileState StateForBlocker(CellBlockerType blocker)

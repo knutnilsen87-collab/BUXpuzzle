@@ -78,23 +78,22 @@ If Unity does not reimport automatically, right-click `Assets/Game/Art` and choo
 
 ## Visual Scale
 
-Authored tile sprites are fitted in `TileView` to 92% of the board cell's largest sprite dimension. This keeps oversized source art from covering neighboring cells while making the tiles read as large, tactile match-3 pieces.
+Authored tile sprites are fitted in `TileView` to 89% of the board cell's largest sprite dimension, then adjusted by `BoardView.tileVisualScale` and each `TileVisualConfig.VisualScale`. This keeps oversized source art from covering neighboring cells while making the tiles read as large, tactile match-3 pieces.
 
 ## Known Limitations
 
-- The engine currently stores `TileState.Line` without a horizontal/vertical orientation value, so runtime line specials resolve to the horizontal sunbeam overlay. The vertical sunbeam asset is imported and mapped for the future orientation-aware path.
+- `TileState.Line` now carries `TileSpecial.LineHorizontal` or `TileSpecial.LineVertical` for presentation and activation. Existing legacy line tiles without orientation fall back to horizontal behavior.
 - Moss and Vine are now rendered as blocker overlays from the existing `BoardCell.Blocker` layer. Pebble and Ice blocker sprites are not part of this final asset drop.
 - The imported JPG source art was converted to PNG with transparent keyed backgrounds. Manual visual QA should confirm there are no remaining unwanted background pixels around each sprite.
 - Screenshots are not committed in this pass; visual QA should be done in the Unity Game view.
 
 ## HUD Polish Backlog
 
-The current HUD has a small Moss/Vine objective chip so blocker goals visually match the board, but it is still an IMGUI placeholder. Production polish should move it to a prefab or UI Toolkit/uGUI layer with:
+The current HUD is runtime uGUI with floating cards, a progress fill, and a small Moss/Vine objective chip so blocker goals visually match the board. Production polish should still move the generated hierarchy to authored prefabs with:
 
-- Floating cards with softer corners and depth.
 - Objective icon sourced from the same blocker/tile visual config.
-- Progress track with clearer fill, milestone ticks and completion state.
-- Better typography hierarchy for level, score and moves.
+- Milestone ticks and completion states for progress.
+- Final typography hierarchy for level, score and moves.
 - Phone-safe layout variants for narrow aspect ratios.
 
 ## Manual QA Checklist
