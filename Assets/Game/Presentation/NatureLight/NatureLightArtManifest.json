@@ -52,5 +52,29 @@
     "match_flash": "match_flash.png",
     "board_frame": "board_frame.png",
     "tile_shadow": "tile_shadow.png"
+  },
+  "board": {
+    "cell_slot_normal": "Sprites/Board/cell_slot_normal.png",
+    "cell_slot_inactive": "Sprites/Board/cell_slot_inactive.png",
+    "moss_underlay": "Sprites/Board/cell_state_moss_underlay_01.png",
+    "moss_underlay_alt": "Sprites/Board/cell_state_moss_underlay_02.png",
+    "moss_underlay_clearing": "Sprites/Board/cell_state_moss_underlay_clearing.png",
+    "root_stone_blocker": "Sprites/Board/cell_state_blocked_root_stone.png",
+    "root_stone_hit": "Sprites/Board/cell_state_blocked_root_stone_hit.png",
+    "tile_selected_ring": "Sprites/Board/tile_selected_ring.png",
+    "tile_hint_pulse": "Sprites/Board/tile_hint_pulse.png",
+    "invalid_tap_flash": "Sprites/Board/cell_invalid_tap_flash.png",
+    "panel_meadow": "Sprites/Board/board_panel_meadow.png",
+    "panel_moss_grove": "Sprites/Board/board_panel_moss_grove.png",
+    "panel_root_stones": "Sprites/Board/board_panel_root_stones.png",
+    "panel_dew_garden": "Sprites/Board/board_panel_dew_garden.png",
+    "panel_moonlit_glade": "Sprites/Board/board_panel_moonlit_glade.png"
+  },
+  "backgrounds": {
+    "meadow": "Sprites/Backgrounds/bg_meadow_calm.png",
+    "moss_grove": "Sprites/Backgrounds/bg_moss_grove.png",
+    "root_stones": "Sprites/Backgrounds/bg_root_stones.png",
+    "dew_garden": "Sprites/Backgrounds/bg_dew_garden.png",
+    "moonlit_glade": "Sprites/Backgrounds/bg_moonlit_glade.png"
   }
 }

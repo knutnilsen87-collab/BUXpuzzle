@@ -1,0 +1,24 @@
+{
+  "package": "BUXPuzzle Board Clarity Repo Docs",
+  "created_utc": "2026-05-13T12:36:36.879182Z",
+  "files": [
+    "AGENTS.md",
+    "README_BOARD_CLARITY_PACK.md",
+    "docs/art/ASSET_PRODUCTION_BACKLOG.md",
+    "docs/design/BOARD_VISUAL_GRAMMAR.md",
+    "docs/engineering/BOARD_ROWS_SCHEMA_DRAFT.md",
+    "docs/engineering/CODEX_BOARD_CLARITY_IMPLEMENTATION_PLAN.md",
+    "docs/levels/FIRST_30_LEVELS_PLAN.md",
+    "docs/product/BOARD_CLARITY_MILESTONE.md",
+    "docs/prompts/CODEX_PROMPT_BOARD_CLARITY.md",
+    "docs/qa/BOARD_READABILITY_QA_CHECKLIST.md",
+    "docs/tasks/BOARD_CLARITY_ACTION_CARDS.md",
+    "docs/tasks/NEXT_30_ACTIONS_BOARD_CLARITY.md"
+  ],
+  "intended_repo": "knutnilsen87-collab/BUXpuzzle",
+  "notes": [
+    "Copy files into the repo at the same relative paths.",
+    "Run Codex with docs/prompts/CODEX_PROMPT_BOARD_CLARITY.md.",
+    "Review paths if repo structure changes."
+  ]
+}

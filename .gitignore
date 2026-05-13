@@ -67,3 +67,4 @@ codex_*.md
 # Raw source drops after Unity import
 /Audio/
 /tiles2/
+/png/

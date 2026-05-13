@@ -6,11 +6,13 @@ namespace Game.EditorTools
     {
         private const string TileArtPath = "Assets/Game/Art/Tiles/";
         private const string BlockerArtPath = "Assets/Game/Art/Blockers/";
+        private const string NatureLightSpritePath = "Assets/Game/Presentation/NatureLight/Sprites/";
 
         void OnPreprocessTexture()
         {
             if (!assetPath.StartsWith(TileArtPath, System.StringComparison.Ordinal) &&
-                !assetPath.StartsWith(BlockerArtPath, System.StringComparison.Ordinal))
+                !assetPath.StartsWith(BlockerArtPath, System.StringComparison.Ordinal) &&
+                !assetPath.StartsWith(NatureLightSpritePath, System.StringComparison.Ordinal))
             {
                 return;
             }
