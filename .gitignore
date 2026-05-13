@@ -6,6 +6,7 @@
 [Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
+.utmp/
 
 # Unity generated files
 *.csproj
@@ -45,12 +46,16 @@ ReleaseCandidate/
 *.rar
 
 # Local recovery/autopilot artifacts kept outside version control
+_Recovery/
 Assets/_Recovery/
 Assets/_Recovery.meta
 AUTOPILOT_*.zip
 FBL_STATUS_BUNDLE.txt
 
 # Local backup/disabled variants from recovery passes
+codex_*.md
+*.backup_*
+*.backup*
 *.bak
 *.bak.*
 *._bak
@@ -58,3 +63,7 @@ FBL_STATUS_BUNDLE.txt
 *.disabled.*
 *.DISABLED
 *.DISABLED.*
+
+# Raw source drops after Unity import
+/Audio/
+/tiles2/

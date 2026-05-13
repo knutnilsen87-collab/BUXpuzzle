@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46989aa347df4797a48d8ac879636490, type: 3}
+  m_Name: TileSet_NatureLight
+  m_EditorClassIdentifier: 
+  Tiles:
+  - Type: 0
+    DisplayName: Dew
+    BaseSprite: {fileID: 21300000, guid: 24e60c30bcdc4af79ff9f8770387941f, type: 3}
+    VisualScale: 0.96
+    HighlightSprite: {fileID: 0}
+    MatchedSprite: {fileID: 0}
+    DisabledSprite: {fileID: 0}
+    TapSound: {fileID: 0}
+    MatchSound: {fileID: 0}
+    AccentColor: {r: 0.30, g: 0.62, b: 0.90, a: 1}
+    AccessibilityLabel: Dew
+  - Type: 1
+    DisplayName: Leaf
+    BaseSprite: {fileID: 21300000, guid: ee8caaaeba3c4e5f8327c5dd003b76d3, type: 3}
+    VisualScale: 0.92
+    HighlightSprite: {fileID: 0}
+    MatchedSprite: {fileID: 0}
+    DisabledSprite: {fileID: 0}
+    TapSound: {fileID: 0}
+    MatchSound: {fileID: 0}
+    AccentColor: {r: 0.35, g: 0.72, b: 0.45, a: 1}
+    AccessibilityLabel: Leaf
+  - Type: 2
+    DisplayName: Sun
+    BaseSprite: {fileID: 21300000, guid: 3d5dcfe6c0a7478f897ac3ad43fff166, type: 3}
+    VisualScale: 0.98
+    HighlightSprite: {fileID: 0}
+    MatchedSprite: {fileID: 0}
+    DisabledSprite: {fileID: 0}
+    TapSound: {fileID: 0}
+    MatchSound: {fileID: 0}
+    AccentColor: {r: 0.96, g: 0.79, b: 0.28, a: 1}
+    AccessibilityLabel: Sun
+  - Type: 3
+    DisplayName: Berry
+    BaseSprite: {fileID: 21300000, guid: f08e8642466942ce9d239f82296eb8d5, type: 3}
+    VisualScale: 1.02
+    HighlightSprite: {fileID: 0}
+    MatchedSprite: {fileID: 0}
+    DisabledSprite: {fileID: 0}
+    TapSound: {fileID: 0}
+    MatchSound: {fileID: 0}
+    AccentColor: {r: 0.92, g: 0.45, b: 0.63, a: 1}
+    AccessibilityLabel: Berry
+  - Type: 4
+    DisplayName: Flower
+    BaseSprite: {fileID: 21300000, guid: ee7d99ab04b74404a9a1dbfd551b20ac, type: 3}
+    VisualScale: 0.98
+    HighlightSprite: {fileID: 0}
+    MatchedSprite: {fileID: 0}
+    DisabledSprite: {fileID: 0}
+    TapSound: {fileID: 0}
+    MatchSound: {fileID: 0}
+    AccentColor: {r: 0.62, g: 0.50, b: 0.88, a: 1}
+    AccessibilityLabel: Flower
+  - Type: 5
+    DisplayName: Pebble
+    BaseSprite: {fileID: 21300000, guid: ebcbf20b281b43e0baf18e2ce085c14b, type: 3}
+    VisualScale: 1.06
+    HighlightSprite: {fileID: 0}
+    MatchedSprite: {fileID: 0}
+    DisabledSprite: {fileID: 0}
+    TapSound: {fileID: 0}
+    MatchSound: {fileID: 0}
+    AccentColor: {r: 0.84, g: 0.74, b: 0.58, a: 1}
+    AccessibilityLabel: Pebble
+  LineHorizontalOverlay: {fileID: 21300000, guid: 0fded32ef91a4f43a40f76000a41ee7b, type: 3}
+  LineVerticalOverlay: {fileID: 21300000, guid: 3c7323ebdcd442a99505f71280ba2f0f, type: 3}
+  BloomBombOverlay: {fileID: 21300000, guid: 44298a4ff1ba4965a1a7b4c49c94e4ba, type: 3}
+  ColorClearOverlay: {fileID: 21300000, guid: 9c0929c8d2d64b1a8374aced6ee0932e, type: 3}
+  Blockers:
+  - Type: 1
+    DisplayName: Moss
+    Sprite: {fileID: 21300000, guid: b3a8bffee3644ad3aa0e8610cd4139bc, type: 3}
+    AccentColor: {r: 0.30, g: 0.68, b: 0.36, a: 1}
+  - Type: 2
+    DisplayName: Vine
+    Sprite: {fileID: 21300000, guid: 1613bc357d1948efa5a2c86ba1e7cc42, type: 3}
+    AccentColor: {r: 0.22, g: 0.55, b: 0.24, a: 1}
+  TileShadowSprite: {fileID: 0}
+  CellSlotSprite: {fileID: 0}

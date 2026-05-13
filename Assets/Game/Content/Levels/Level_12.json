@@ -1,0 +1,1 @@
+{"levelId":12,"worldId":1,"displayName":"Moss Progression","width":8,"height":8,"moveLimit":21,"mechanic":"Moss","goals":[{"type":"ClearBlockers","target":8}],"boardRows":["........",".M....M.","..M..M..","........","........","..M..M..",".M....M.","........"]}

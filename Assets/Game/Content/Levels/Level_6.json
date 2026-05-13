@@ -1,0 +1,1 @@
+{"levelId":6,"worldId":1,"displayName":"Basic Collection","width":8,"height":8,"moveLimit":18,"designerNote":"Collect a color target with room to learn.","goals":[{"type":"ClearTilesOfType","target":20,"targetTileType":0}]}

@@ -1,0 +1,1 @@
+{"levelId":13,"worldId":1,"displayName":"Moss And Sunbeam","width":8,"height":8,"moveLimit":21,"mechanic":"Sunbeam","goals":[{"type":"ClearBlockers","target":8}],"boardRows":["........","...MM...","........",".M....M.","........","........","...MM...","........"]}

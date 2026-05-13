@@ -1,0 +1,1 @@
+{"levelId":20,"worldId":1,"displayName":"Moss Milestone","width":8,"height":8,"moveLimit":24,"mechanic":"Moss","goals":[{"type":"ClearBlockers","target":10}],"boardRows":["........",".MM..MM.","........","..M..M..","..M..M..","........",".MM..MM.","........"]}

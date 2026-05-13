@@ -9,6 +9,11 @@ namespace Game.Presentation.UI
         [Header("Header")]
         public Text Headline;
         public Text Explanation;
+        public Text Score;
+        public Text Medal;
+        public Text MovesLeft;
+        public Text BestCascade;
+        public Text ShareCode;
 
         [Header("Cards")]
         public RewardCard InstantRewardCard;
@@ -23,6 +28,11 @@ namespace Game.Presentation.UI
 
             if (Headline != null) Headline.text = data.Headline ?? string.Empty;
             if (Explanation != null) Explanation.text = data.Explanation ?? string.Empty;
+            if (Score != null) Score.text = data.Score.ToString();
+            if (Medal != null) Medal.text = data.Medal.ToString() + "  " + data.Stars + "/3";
+            if (MovesLeft != null) MovesLeft.text = data.MovesLeft + " trekk igjen";
+            if (BestCascade != null) BestCascade.text = "Beste cascade: " + data.BestCascade;
+            if (ShareCode != null) ShareCode.text = data.ShareCode ?? string.Empty;
 
             if (InstantRewardCard != null) InstantRewardCard.Hide();
             if (XpCard != null) XpCard.Hide();

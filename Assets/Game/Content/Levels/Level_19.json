@@ -1,0 +1,1 @@
+{"levelId":19,"worldId":1,"displayName":"Dew Drop Challenge","width":8,"height":8,"moveLimit":23,"mechanic":"DewDrop","goals":[{"type":"DropObjectsToExit","target":2}],"boardRows":["..O..O..","........","........","........","........","........","........","..D..D.."]}

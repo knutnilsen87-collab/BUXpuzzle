@@ -1,0 +1,289 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54506feab63ed64b821a47414b9be24, type: 3}
+  m_Name: BUXPuzzleAudioConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Audio.BUXPuzzleAudioConfig
+  Events:
+  - Event: 0
+    Route: 0
+    Clip: {fileID: 8300000, guid: 62f0ce8bfd51cd54c9f0dce812cef22f, type: 3}
+    Volume: 0.78
+    PitchMin: 0.97
+    PitchMax: 1.03
+    CooldownSeconds: 0.04
+    MaxSimultaneousVoices: 4
+  - Event: 1
+    Route: 0
+    Clip: {fileID: 8300000, guid: d3f830bbd6f2961438993ef04bdff5c9, type: 3}
+    Volume: 0.52
+    PitchMin: 0.97
+    PitchMax: 1.02
+    CooldownSeconds: 0.05
+    MaxSimultaneousVoices: 2
+  - Event: 2
+    Route: 0
+    Clip: {fileID: 8300000, guid: f2c4a90263ff51a4480c73cefeed72d6, type: 3}
+    Volume: 0.62
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.05
+    MaxSimultaneousVoices: 2
+  - Event: 3
+    Route: 0
+    Clip: {fileID: 8300000, guid: 69865b436e204e44984fbb5e18e8b069, type: 3}
+    Volume: 0.7
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.05
+    MaxSimultaneousVoices: 2
+  - Event: 4
+    Route: 3
+    Clip: {fileID: 8300000, guid: 0e38ff0d31b5c1f40a71482e9f69d5e2, type: 3}
+    Volume: 0.62
+    PitchMin: 0.98
+    PitchMax: 1.01
+    CooldownSeconds: 0.2
+    MaxSimultaneousVoices: 1
+  - Event: 5
+    Route: 0
+    Clip: {fileID: 8300000, guid: 31823b8db2d430b41afab7f2a5320678, type: 3}
+    Volume: 0.75
+    PitchMin: 0.97
+    PitchMax: 1.03
+    CooldownSeconds: 0.05
+    MaxSimultaneousVoices: 3
+  - Event: 6
+    Route: 0
+    Clip: {fileID: 8300000, guid: c79b0b2141f78c94dbf58bfc8dfa1ee2, type: 3}
+    Volume: 0.78
+    PitchMin: 0.97
+    PitchMax: 1.03
+    CooldownSeconds: 0.05
+    MaxSimultaneousVoices: 3
+  - Event: 7
+    Route: 2
+    Clip: {fileID: 8300000, guid: 64a3e946daae99a46b7d1e47626d7257, type: 3}
+    Volume: 0.78
+    PitchMin: 0.97
+    PitchMax: 1.03
+    CooldownSeconds: 0.08
+    MaxSimultaneousVoices: 2
+  - Event: 8
+    Route: 0
+    Clip: {fileID: 8300000, guid: 8ad8cfe87fb7047489e0e6d40547219e, type: 3}
+    Volume: 0.65
+    PitchMin: 0.98
+    PitchMax: 1.03
+    CooldownSeconds: 0.06
+    MaxSimultaneousVoices: 2
+  - Event: 9
+    Route: 0
+    Clip: {fileID: 8300000, guid: c143a94aefe38f44980d501b9625499e, type: 3}
+    Volume: 0.7
+    PitchMin: 0.98
+    PitchMax: 1.03
+    CooldownSeconds: 0.07
+    MaxSimultaneousVoices: 2
+  - Event: 10
+    Route: 2
+    Clip: {fileID: 8300000, guid: a577ed84506744d4a9e898ae6d2567b6, type: 3}
+    Volume: 0.76
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.1
+    MaxSimultaneousVoices: 1
+  - Event: 11
+    Route: 0
+    Clip: {fileID: 8300000, guid: acc4548ab17920b4f9f71ee3ff72f4bd, type: 3}
+    Volume: 0.5
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.08
+    MaxSimultaneousVoices: 1
+  - Event: 12
+    Route: 0
+    Clip: {fileID: 8300000, guid: 41c0cda9c58124f449629657675b5698, type: 3}
+    Volume: 0.56
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.1
+    MaxSimultaneousVoices: 1
+  - Event: 13
+    Route: 0
+    Clip: {fileID: 8300000, guid: 45e8c0d4d64de3d4c832d2ae6aac9455, type: 3}
+    Volume: 0.48
+    PitchMin: 0.97
+    PitchMax: 1.02
+    CooldownSeconds: 0.08
+    MaxSimultaneousVoices: 1
+  - Event: 14
+    Route: 0
+    Clip: {fileID: 8300000, guid: 1c1c22750eb1902458c67af6d89243a3, type: 3}
+    Volume: 0.55
+    PitchMin: 0.97
+    PitchMax: 1.02
+    CooldownSeconds: 0.1
+    MaxSimultaneousVoices: 1
+  - Event: 15
+    Route: 2
+    Clip: {fileID: 8300000, guid: f0cdb426b4159c2499395db0f364143e, type: 3}
+    Volume: 0.62
+    PitchMin: 0.99
+    PitchMax: 1.02
+    CooldownSeconds: 0.18
+    MaxSimultaneousVoices: 1
+  - Event: 16
+    Route: 2
+    Clip: {fileID: 8300000, guid: c4fb2f79e0e55e44a8bc6ab6c42e151d, type: 3}
+    Volume: 0.66
+    PitchMin: 0.99
+    PitchMax: 1.02
+    CooldownSeconds: 0.2
+    MaxSimultaneousVoices: 1
+  - Event: 17
+    Route: 2
+    Clip: {fileID: 8300000, guid: 4ab2849767b59c249a5b6211473d27f4, type: 3}
+    Volume: 0.72
+    PitchMin: 0.99
+    PitchMax: 1.02
+    CooldownSeconds: 0.22
+    MaxSimultaneousVoices: 1
+  - Event: 18
+    Route: 2
+    Clip: {fileID: 8300000, guid: aab6507e59a8b5043aac9f15b9254266, type: 3}
+    Volume: 0.68
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.12
+    MaxSimultaneousVoices: 1
+  - Event: 19
+    Route: 2
+    Clip: {fileID: 8300000, guid: b1d5bd5b68a228747a683c81797eecfa, type: 3}
+    Volume: 0.78
+    PitchMin: 0.99
+    PitchMax: 1.01
+    CooldownSeconds: 0.5
+    MaxSimultaneousVoices: 1
+  - Event: 20
+    Route: 3
+    Clip: {fileID: 8300000, guid: 8285ff21dd80cef439bd84da933f6725, type: 3}
+    Volume: 0.62
+    PitchMin: 1
+    PitchMax: 1
+    CooldownSeconds: 0.5
+    MaxSimultaneousVoices: 1
+  - Event: 21
+    Route: 1
+    Clip: {fileID: 8300000, guid: 14d26ebb28c237b4a91b82e6694655a6, type: 3}
+    Volume: 0.56
+    PitchMin: 0.98
+    PitchMax: 1.02
+    CooldownSeconds: 0.05
+    MaxSimultaneousVoices: 2
+  - Event: 22
+    Route: 1
+    Clip: {fileID: 8300000, guid: 4100d0f140a81ed4c9f773e8894ba1b8, type: 3}
+    Volume: 0.52
+    PitchMin: 1
+    PitchMax: 1
+    CooldownSeconds: 0.15
+    MaxSimultaneousVoices: 1
+  - Event: 23
+    Route: 1
+    Clip: {fileID: 8300000, guid: 4c6b574510e8b774e93635fdbf6505d3, type: 3}
+    Volume: 0.46
+    PitchMin: 1
+    PitchMax: 1
+    CooldownSeconds: 0.15
+    MaxSimultaneousVoices: 1
+  - Event: 24
+    Route: 1
+    Clip: {fileID: 8300000, guid: f66d90c831b600b4f93b440afa731422, type: 3}
+    Volume: 0.56
+    PitchMin: 0.99
+    PitchMax: 1.01
+    CooldownSeconds: 0.5
+    MaxSimultaneousVoices: 1
+  - Event: 25
+    Route: 1
+    Clip: {fileID: 8300000, guid: 0d7975f30de50ef44a3e08c9f8f7a984, type: 3}
+    Volume: 0.42
+    PitchMin: 0.99
+    PitchMax: 1.01
+    CooldownSeconds: 1
+    MaxSimultaneousVoices: 1
+  - Event: 26
+    Route: 2
+    Clip: {fileID: 8300000, guid: 5129d29170cd68f4ebd6c22a9127dbd6, type: 3}
+    Volume: 0.58
+    PitchMin: 0.99
+    PitchMax: 1.02
+    CooldownSeconds: 0.15
+    MaxSimultaneousVoices: 1
+  - Event: 27
+    Route: 2
+    Clip: {fileID: 8300000, guid: 3751d21cf227f7a4ca6941f7274e1938, type: 3}
+    Volume: 0.75
+    PitchMin: 0.99
+    PitchMax: 1.02
+    CooldownSeconds: 0.15
+    MaxSimultaneousVoices: 1
+  - Event: 28
+    Route: 2
+    Clip: {fileID: 8300000, guid: e820be754f0676d48958521464ac7b0d, type: 3}
+    Volume: 0.68
+    PitchMin: 0.99
+    PitchMax: 1.02
+    CooldownSeconds: 0.2
+    MaxSimultaneousVoices: 1
+  - Event: 29
+    Route: 2
+    Clip: {fileID: 8300000, guid: 8bc79523dcb4c6241aed8dae4083c769, type: 3}
+    Volume: 0.78
+    PitchMin: 0.99
+    PitchMax: 1.01
+    CooldownSeconds: 0.25
+    MaxSimultaneousVoices: 1
+  Music:
+  - Track: 0
+    Clip: {fileID: 8300000, guid: 85a748026fb398e4fa06412356ceefe5, type: 3}
+    Volume: 0.42
+    Loop: 1
+  - Track: 1
+    Clip: {fileID: 8300000, guid: 3e835a9846dcb3c44874c1cdd77de635, type: 3}
+    Volume: 0.46
+    Loop: 1
+  - Track: 2
+    Clip: {fileID: 8300000, guid: 592b92501e57c754c88a324ddaf5bb0d, type: 3}
+    Volume: 0.44
+    Loop: 1
+  - Track: 3
+    Clip: {fileID: 8300000, guid: 727d9e16cf19545448d27ca7da45c135, type: 3}
+    Volume: 0.42
+    Loop: 1
+  - Track: 4
+    Clip: {fileID: 8300000, guid: d0f29e3c988875f4d84d934c33b54b29, type: 3}
+    Volume: 0.42
+    Loop: 1
+  - Track: 5
+    Clip: {fileID: 8300000, guid: 37f872eb26120ff4c88d4d8e6a64c7dd, type: 3}
+    Volume: 0.3
+    Loop: 0
+  - Track: 6
+    Clip: {fileID: 8300000, guid: b3ac0c3ece8c99b4f8c4158219d5f38d, type: 3}
+    Volume: 0.5
+    Loop: 0
+  Ambience:
+  - Track: 0
+    Clip: {fileID: 8300000, guid: f677d8cdc1f2d5e4ca71c975905342d4, type: 3}
+    Volume: 0.22
+    Loop: 1
